@@ -44,7 +44,10 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     final textTheme = theme.textTheme;
 
     return GestureDetector(
-      onTap: () => _showCountryPicker(context),
+      onTap: () {
+        HapticFeedback.mediumImpact();
+        _showCountryPicker(context);
+      },
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
         decoration: BoxDecoration(
@@ -82,6 +85,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       favorite: ['IN', 'US', 'GB'], // Optional: Add favorite countries
       showPhoneCode: true,
       onSelect: (Country country) {
+        HapticFeedback.mediumImpact();
         setState(() {
           _selectedCountry = country;
           _selectedCountryCode = '+${country.phoneCode}';
@@ -203,7 +207,10 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       required String label,
     }) {
       return buildStyledButton(
-        onPressed: onPressed,
+        onPressed: () {
+          HapticFeedback.mediumImpact();
+          onPressed();
+        },
         backgroundColor: colorScheme.surface,
         foregroundColor: colorScheme.onSurface,
         padding: const EdgeInsets.symmetric(vertical: 16),
@@ -256,9 +263,11 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   // Continue Button - Use Jordy Blue from theme
                   buildStyledButton(
                     onPressed: () {
-                      // Basic validation
-                      if (_phoneController.text.length >= 6) { // Adjust length as needed
+                      if (_phoneController.text.length >= 6) {
+                        HapticFeedback.heavyImpact();
                         context.go('/home');
+                      } else {
+                        HapticFeedback.mediumImpact();
                       }
                     },
                     backgroundColor: colorScheme.primary,
@@ -293,7 +302,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   const SizedBox(height: 30),
                   // Social Login Buttons
                   buildSocialButton(
-                    onPressed: () {},
+                    onPressed: () { /* TODO: Implement Apple Sign In */ },
                     icon: Icon(
                       Icons.apple,
                       color: colorScheme.onSurface,
@@ -303,7 +312,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   ),
                   const SizedBox(height: 16),
                   buildSocialButton(
-                    onPressed: () {},
+                    onPressed: () { /* TODO: Implement Google Sign In */ },
                     icon: SvgPicture.asset(
                       'assets/images/google_logo.svg',
                       width: 22,
@@ -337,7 +346,10 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   const SizedBox(height: 24),
                   // Find My Account
                   TextButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      HapticFeedback.lightImpact();
+                      // TODO: Implement Find Account logic
+                    },
                     style: TextButton.styleFrom(
                       foregroundColor: colorScheme.onSurfaceVariant, // Less prominent text color
                       padding: const EdgeInsets.symmetric(vertical: 12),
@@ -391,6 +403,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             child: SafeArea(
               child: FloatingActionButton(
                 onPressed: () {
+                  HapticFeedback.mediumImpact();
                   if (context.canPop()) {
                     context.pop();
                   }
