@@ -32,6 +32,8 @@ dependencies:
     sdk: flutter
   go_router: ^14.8.1
   dynamic_color: ^1.7.0
+  country_picker: ^2.0.27
+  flutter_svg: ^2.0.10+1
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
@@ -61,11 +63,9 @@ flutter:
   uses-material-design: true
 
   # To add assets to your application, add an assets section, like this:
-  # assets:
-  #   - images/a_dot_burr.jpeg
-  #   - images/a_dot_ham.jpeg
   assets:
     - assets/images/
+    - assets/fonts/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
@@ -92,6 +92,13 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package
+
+  fonts:
+    - family: Inter
+      fonts:
+        - asset: assets/fonts/Inter[opsz,wght].ttf
+        - asset: assets/fonts/Inter-Italic[opsz,wght].ttf
+          style: italic
 
 flutter_launcher_icons:
   android: "launcher_icon"
