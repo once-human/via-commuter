@@ -26,8 +26,16 @@ class AppTheme {
       textTheme: _buildTextTheme(colorScheme),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
-          // Default button styles can be defined here
+          // Explicitly define background and foreground from ColorScheme
+          backgroundColor: colorScheme.primary,
+          foregroundColor: colorScheme.onPrimary,
+          // Keep existing text style overrides
           textStyle: const TextStyle(fontFamily: _fontFamily, fontWeight: FontWeight.w600),
+          // Add padding and shape for consistency if needed
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16), // Match other elements
+          ),
         ),
       ),
       textButtonTheme: TextButtonThemeData(
@@ -36,19 +44,31 @@ class AppTheme {
          ),
       ),
       inputDecorationTheme: InputDecorationTheme(
-        // Default input styles can be defined here
+        // Define borders for different states
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          // Subtle border when not focused
+          borderSide: BorderSide(color: colorScheme.outlineVariant, width: 1),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          // Highlight border using primary color when focused (reduced width)
+          borderSide: BorderSide(color: colorScheme.primary, width: 1.0),
+        ),
+        // Ensure borderSide is none in the base 'border' to rely on enabled/focused
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-          borderSide: BorderSide.none,
+           borderRadius: BorderRadius.circular(16),
+           borderSide: BorderSide.none, // Base border is none
         ),
         filled: true,
-        fillColor: colorScheme.surfaceContainerHighest,
+        // Apply translucency to the default input background
+        fillColor: colorScheme.surface.withOpacity(0.7),
         hintStyle: TextStyle(
           fontFamily: _fontFamily,
           color: colorScheme.onSurfaceVariant.withOpacity(0.6),
           fontWeight: FontWeight.w400, // Regular
         ),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
       ),
       // Define other component themes as needed
     );
