@@ -95,9 +95,6 @@ class _OnboardingScreenState extends State<OnboardingScreen> with SingleTickerPr
 
   // Animation Controller for entrance animations
   late AnimationController _entranceController;
-  // Remove single animations
-  // late Animation<double> _fadeAnimation;
-  // late Animation<Offset> _slideAnimation;
 
   // Define animations for different elements
   late Animation<double> _fadeHeaderAnimation;
@@ -109,11 +106,17 @@ class _OnboardingScreenState extends State<OnboardingScreen> with SingleTickerPr
   late Animation<double> _fadeContinueBtnAnimation;
   late Animation<Offset> _slideContinueBtnAnimation;
 
+  late Animation<double> _fadeDivider1Animation; // New
+  late Animation<Offset> _slideDivider1Animation; // New
+
   late Animation<double> _fadeSocial1Animation;
   late Animation<Offset> _slideSocial1Animation;
 
   late Animation<double> _fadeSocial2Animation;
   late Animation<Offset> _slideSocial2Animation;
+
+  late Animation<double> _fadeDivider2Animation; // New
+  late Animation<Offset> _slideDivider2Animation; // New
 
   late Animation<double> _fadeFooterAnimation;
   late Animation<Offset> _slideFooterAnimation;
@@ -123,125 +126,92 @@ class _OnboardingScreenState extends State<OnboardingScreen> with SingleTickerPr
     super.initState();
     _entranceController = AnimationController(
       vsync: this,
-      // Increase duration slightly to accommodate staggering
-      duration: const Duration(milliseconds: 800),
+      duration: const Duration(milliseconds: 800), // Adjusted duration if needed
     );
 
     // Define STAGGERED animations using Intervals
-    // Intervals define the portion of the controller's duration each animation runs
-
-    // Header (Implicit - if we add one later)
     _fadeHeaderAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(
-        parent: _entranceController,
-        curve: const Interval(0.0, 0.4, curve: Curves.easeOut),
-      ),
+      CurvedAnimation(parent: _entranceController, curve: const Interval(0.0, 0.4, curve: Curves.easeOut)),
     );
-     _slideHeaderAnimation = Tween<Offset>(begin: const Offset(0, 0.2), end: Offset.zero).animate(
-      CurvedAnimation(
-        parent: _entranceController,
-         curve: const Interval(0.0, 0.4, curve: Curves.easeOut),
-      ),
+    _slideHeaderAnimation = Tween<Offset>(begin: const Offset(0, 0.2), end: Offset.zero).animate(
+      CurvedAnimation(parent: _entranceController, curve: const Interval(0.0, 0.4, curve: Curves.easeOut)),
     );
 
-    // Input Row (Phone number + Country code)
     _fadeInputAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(
-        parent: _entranceController,
-        curve: const Interval(0.1, 0.5, curve: Curves.easeOut), // Starts slightly after header
-      ),
+      CurvedAnimation(parent: _entranceController, curve: const Interval(0.1, 0.5, curve: Curves.easeOut)),
     );
     _slideInputAnimation = Tween<Offset>(begin: const Offset(0, 0.2), end: Offset.zero).animate(
-      CurvedAnimation(
-        parent: _entranceController,
-        curve: const Interval(0.1, 0.5, curve: Curves.easeOut),
-      ),
+      CurvedAnimation(parent: _entranceController, curve: const Interval(0.1, 0.5, curve: Curves.easeOut)),
     );
 
-    // Continue Button
     _fadeContinueBtnAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(
-        parent: _entranceController,
-        curve: const Interval(0.2, 0.6, curve: Curves.easeOut), // Starts after input
-      ),
+      CurvedAnimation(parent: _entranceController, curve: const Interval(0.2, 0.6, curve: Curves.easeOut)),
     );
-     _slideContinueBtnAnimation = Tween<Offset>(begin: const Offset(0, 0.2), end: Offset.zero).animate(
-      CurvedAnimation(
-        parent: _entranceController,
-         curve: const Interval(0.2, 0.6, curve: Curves.easeOut),
-      ),
+    _slideContinueBtnAnimation = Tween<Offset>(begin: const Offset(0, 0.2), end: Offset.zero).animate(
+      CurvedAnimation(parent: _entranceController, curve: const Interval(0.2, 0.6, curve: Curves.easeOut)),
     );
 
-     // Social Button 1 (Apple)
+    // Divider 1 Animation
+    _fadeDivider1Animation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _entranceController, curve: const Interval(0.25, 0.65, curve: Curves.easeOut)),
+    );
+    _slideDivider1Animation = Tween<Offset>(begin: const Offset(0, 0.2), end: Offset.zero).animate(
+      CurvedAnimation(parent: _entranceController, curve: const Interval(0.25, 0.65, curve: Curves.easeOut)),
+    );
+
     _fadeSocial1Animation = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(
-        parent: _entranceController,
-        curve: const Interval(0.3, 0.7, curve: Curves.easeOut),
-      ),
+      CurvedAnimation(parent: _entranceController, curve: const Interval(0.3, 0.7, curve: Curves.easeOut)),
     );
-     _slideSocial1Animation = Tween<Offset>(begin: const Offset(0, 0.2), end: Offset.zero).animate(
-      CurvedAnimation(
-        parent: _entranceController,
-         curve: const Interval(0.3, 0.7, curve: Curves.easeOut),
-      ),
+    _slideSocial1Animation = Tween<Offset>(begin: const Offset(0, 0.2), end: Offset.zero).animate(
+      CurvedAnimation(parent: _entranceController, curve: const Interval(0.3, 0.7, curve: Curves.easeOut)),
     );
 
-     // Social Button 2 (Google)
     _fadeSocial2Animation = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(
-        parent: _entranceController,
-        curve: const Interval(0.35, 0.75, curve: Curves.easeOut), // Slightly after Apple
-      ),
+      CurvedAnimation(parent: _entranceController, curve: const Interval(0.35, 0.75, curve: Curves.easeOut)),
     );
-     _slideSocial2Animation = Tween<Offset>(begin: const Offset(0, 0.2), end: Offset.zero).animate(
-      CurvedAnimation(
-        parent: _entranceController,
-         curve: const Interval(0.35, 0.75, curve: Curves.easeOut),
-      ),
+    _slideSocial2Animation = Tween<Offset>(begin: const Offset(0, 0.2), end: Offset.zero).animate(
+      CurvedAnimation(parent: _entranceController, curve: const Interval(0.35, 0.75, curve: Curves.easeOut)),
     );
 
-    // Footer elements (Find account, consent text)
-     _fadeFooterAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(
-        parent: _entranceController,
-        curve: const Interval(0.45, 0.85, curve: Curves.easeOut),
-      ),
+    // Divider 2 Animation
+     _fadeDivider2Animation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _entranceController, curve: const Interval(0.40, 0.80, curve: Curves.easeOut)),
     );
-     _slideFooterAnimation = Tween<Offset>(begin: const Offset(0, 0.2), end: Offset.zero).animate(
-      CurvedAnimation(
-        parent: _entranceController,
-         curve: const Interval(0.45, 0.85, curve: Curves.easeOut),
-      ),
+     _slideDivider2Animation = Tween<Offset>(begin: const Offset(0, 0.2), end: Offset.zero).animate(
+      CurvedAnimation(parent: _entranceController, curve: const Interval(0.40, 0.80, curve: Curves.easeOut)),
     );
 
-    // Start the main animation controller
+    // Footer includes "Find account" and "Consent"
+    _fadeFooterAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _entranceController, curve: const Interval(0.45, 0.85, curve: Curves.easeOut)),
+    );
+    _slideFooterAnimation = Tween<Offset>(begin: const Offset(0, 0.2), end: Offset.zero).animate(
+      CurvedAnimation(parent: _entranceController, curve: const Interval(0.45, 0.85, curve: Curves.easeOut)),
+    );
+
     _entranceController.forward();
   }
 
   @override
   void dispose() {
-    _entranceController.dispose(); // Dispose the controller
+    _entranceController.dispose();
     _phoneController.dispose();
     super.dispose();
   }
 
-  // Updated buildCountryCodeSelector
   Widget _buildCountryCodeSelector(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
     final textTheme = theme.textTheme;
-
-    // Wrap with SizedBox to enforce height matching the TextField
     return SizedBox(
-      height: 58, // Explicit height to match TextField based on theme padding
+      height: 58,
       child: TapScaleEffect(
         onTap: () {
           HapticFeedback.mediumImpact();
           _showCountryPicker(context);
         },
         child: Container(
-          // Keep existing padding for internal content alignment
-          padding: const EdgeInsets.symmetric(horizontal: 16), // Vertical padding removed as height is fixed
+          padding: const EdgeInsets.symmetric(horizontal: 16),
           decoration: BoxDecoration(
             color: colorScheme.surface.withOpacity(0.7),
             borderRadius: BorderRadius.circular(16),
@@ -252,7 +222,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> with SingleTickerPr
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.center, // Center content vertically
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text(
                 _selectedCountry.flagEmoji,
@@ -271,7 +241,6 @@ class _OnboardingScreenState extends State<OnboardingScreen> with SingleTickerPr
     );
   }
 
-  // Updated _showCountryPicker using country_picker package
   void _showCountryPicker(BuildContext context) {
     final theme = Theme.of(context);
     showCountryPicker(
@@ -284,15 +253,14 @@ class _OnboardingScreenState extends State<OnboardingScreen> with SingleTickerPr
           _selectedCountry = country;
           _selectedCountryCode = '+${country.phoneCode}';
         });
+        // Navigator.pop(context); // Removed as picker handles its own dismissal
       },
-      // Use the correct parameter name and provide standard theme data
       countryListTheme: CountryListThemeData(
-          backgroundColor: theme.colorScheme.surface, // Use surface color for sheet bg
+          backgroundColor: theme.colorScheme.surface,
           searchTextStyle: TextStyle(color: theme.colorScheme.onSurface),
           textStyle: TextStyle(color: theme.colorScheme.onSurface),
           bottomSheetHeight: MediaQuery.of(context).size.height * 0.7,
           borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-          // Keep input decoration styling
           inputDecoration: InputDecoration(
               hintText: 'Search country',
               hintStyle: TextStyle(color: theme.colorScheme.onSurfaceVariant.withOpacity(0.7)),
@@ -302,11 +270,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> with SingleTickerPr
                 borderSide: BorderSide.none,
               ),
               filled: true,
-              fillColor: theme.colorScheme.surfaceContainerHighest, 
+              fillColor: theme.colorScheme.surfaceContainerHighest, // Consider changing this color if needed
           ),
       ),
-      // REMOVE the custom bottomSheetBuilder
-      // bottomSheetBuilder: (context) { ... }, 
     );
   }
 
@@ -316,40 +282,25 @@ class _OnboardingScreenState extends State<OnboardingScreen> with SingleTickerPr
     final colorScheme = theme.colorScheme;
     final textTheme = theme.textTheme;
 
-    // Updated buildPhoneInput
     Widget _buildPhoneInput(BuildContext context) {
-      final theme = Theme.of(context);
-      final colorScheme = theme.colorScheme;
-      // No longer need explicit border radius or fill color here,
-      // it will inherit from the theme's InputDecorationTheme
       return Expanded(
         child: TextField(
           controller: _phoneController,
           keyboardType: TextInputType.phone,
           style: TextStyle(
             color: colorScheme.onSurface,
-            fontWeight: FontWeight.w500, // Medium
+            fontWeight: FontWeight.w500,
           ),
-          decoration: InputDecoration(
+          decoration: const InputDecoration(
             hintText: 'Enter phone number',
-            // Remove explicit decoration properties, inherit from theme
-            // fillColor: colorScheme.surface.withOpacity(0.7),
-            // border: OutlineInputBorder(
-            //   borderRadius: BorderRadius.circular(16),
-            //   borderSide: BorderSide.none,
-            // ),
-            // filled: true,
           ),
           onChanged: (value) {
-            setState(() {
-              // Basic validation logic could go here if needed
-            });
+            setState(() {});
           },
         ),
       );
     }
 
-    // Updated buildStyledButton
     ElevatedButton buildStyledButton({
       required VoidCallback onPressed,
       required Widget child,
@@ -361,37 +312,42 @@ class _OnboardingScreenState extends State<OnboardingScreen> with SingleTickerPr
       BorderSide? side,
       double elevation = 2.0,
     }) {
+      // Note: This custom button builder isn't currently used by ElevatedButtonTheme
+      // It was kept from previous iterations but isn't needed if relying on theme
       return ElevatedButton(
         onPressed: onPressed,
         style: ElevatedButton.styleFrom(
-          backgroundColor: backgroundColor.withOpacity(backgroundColor == colorScheme.surface ? 0.85 : 1.0),
-          foregroundColor: foregroundColor,
+          backgroundColor: backgroundColor, // Theme now handles this
+          foregroundColor: foregroundColor, // Theme now handles this
           minimumSize: Size(minWidth ?? double.infinity, minHeight ?? 56),
-          padding: EdgeInsets.zero,
-          shape: RoundedRectangleBorder(
+          padding: padding, // Theme now defines padding
+          shape: RoundedRectangleBorder( // Theme now defines shape
             borderRadius: BorderRadius.circular(16),
             side: side ?? BorderSide.none,
           ),
           elevation: elevation,
           shadowColor: Colors.black.withOpacity(0.1),
         ),
-        child: Padding(padding: padding, child: child),
+        child: child,
       );
     }
 
-    // Updated buildSocialButton
     Widget buildSocialButton({
       required VoidCallback onPressed,
       required Widget icon,
       required String label,
-      double opacity = 0.7, // Default opacity if not provided
+      double opacity = 0.7,
     }) {
+      final theme = Theme.of(context);
+      final colorScheme = theme.colorScheme;
+      final textTheme = theme.textTheme;
+
       return TapScaleEffect(
         onTap: onPressed,
         child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 16), // Keep consistent vertical padding
+          padding: const EdgeInsets.symmetric(vertical: 16),
           decoration: BoxDecoration(
-            color: colorScheme.surface.withOpacity(opacity), // Use passed opacity
+            color: colorScheme.surface.withOpacity(opacity),
             borderRadius: BorderRadius.circular(16),
             border: Border.all(
               color: colorScheme.outline.withOpacity(0.1),
@@ -400,14 +356,13 @@ class _OnboardingScreenState extends State<OnboardingScreen> with SingleTickerPr
           ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              SizedBox(width: 22, height: 22, child: Center(child: icon)),
+              SizedBox(width: 24, height: 24, child: Center(child: icon)),
               const SizedBox(width: 12),
               Text(
                 label,
-                style: textTheme.bodyLarge?.copyWith(
-                  fontWeight: FontWeight.w500,
-                ),
+                style: textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w500),
               ),
             ],
           ),
@@ -422,23 +377,12 @@ class _OnboardingScreenState extends State<OnboardingScreen> with SingleTickerPr
           child: SingleChildScrollView(
             padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 40.0),
             child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                FadeTransition(
-                  opacity: _fadeHeaderAnimation,
-                  child: SlideTransition(
-                    position: _slideHeaderAnimation,
-                    child: Text(
-                      'VIA',
-                      style: theme.textTheme.displayLarge?.copyWith(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 64, // Reduce font size slightly
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 40),
+                // Add some top spacing if needed after removing logo
+                 const SizedBox(height: 20), 
+
+                // Input Row (Top Section)
                 FadeTransition(
                   opacity: _fadeInputAnimation,
                   child: SlideTransition(
@@ -454,85 +398,108 @@ class _OnboardingScreenState extends State<OnboardingScreen> with SingleTickerPr
                   ),
                 ),
                 const SizedBox(height: 24),
+
+                // Continue Button (Top Section)
                 FadeTransition(
                   opacity: _fadeContinueBtnAnimation,
                   child: SlideTransition(
                     position: _slideContinueBtnAnimation,
-                    child: buildStyledButton(
-                      onPressed: () {
-                        if (_phoneController.text.length >= 6) {
-                          HapticFeedback.heavyImpact();
-                          context.go('/home');
-                        } else {
-                          HapticFeedback.mediumImpact();
-                        }
-                      },
-                      backgroundColor: colorScheme.primary,
-                      foregroundColor: colorScheme.onPrimary,
-                      elevation: 3.0,
-                      child: Text(
-                        'CONTINUE',
-                        style: textTheme.labelLarge?.copyWith(
-                          letterSpacing: 1.2,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 15,
-                        ),
-                      ),
+                    child: Builder( // Use Builder to easily access controller state
+                      builder: (context) {
+                        final bool isEnabled = _phoneController.text.length >= 6;
+                        return Opacity(
+                          opacity: isEnabled ? 1.0 : 0.5, // Fade button slightly when disabled
+                          child: TapScaleEffect( 
+                            onTap: () { // Main logic remains here
+                              if (isEnabled) {
+                                HapticFeedback.heavyImpact();
+                                context.go('/home');
+                              } else {
+                                HapticFeedback.mediumImpact(); // Still provide feedback on tap
+                              }
+                            },
+                            child: ElevatedButton( 
+                              // onPressed only handles haptics now, enabled state controls visual
+                              onPressed: () => HapticFeedback.mediumImpact(), 
+                              // Remove forced style, let theme + Opacity handle appearance
+                              // style: ElevatedButton.styleFrom(...).merge(...), 
+                              child: const Text('CONTINUE'),
+                            ),
+                          ),
+                        );
+                      }
                     ),
                   ),
                 ),
-                const SizedBox(height: 32),
-                _buildDivider(context),
-                const SizedBox(height: 32),
+                 // Add significant spacing to push middle content down
+                 const SizedBox(height: 60), 
+
+                // --- Middle Section --- 
+                // First Divider
                 FadeTransition(
+                  opacity: _fadeDivider1Animation,
+                  child: SlideTransition(
+                     position: _slideDivider1Animation,
+                     child: _buildDivider(context),
+                  ),
+                 ),
+                const SizedBox(height: 32),
+
+                // Apple Button
+                 FadeTransition(
                   opacity: _fadeSocial1Animation,
                   child: SlideTransition(
                     position: _slideSocial1Animation,
                     child: buildSocialButton(
-                      onPressed: () {
-                        HapticFeedback.mediumImpact();
-                        // TODO: Implement Apple Sign In
-                      },
-                      icon: Icon(
-                        Icons.apple,
-                        color: colorScheme.onSurface,
-                        size: 26,
-                      ),
+                      onPressed: () { HapticFeedback.mediumImpact(); /* TODO */ },
+                      icon: Icon(Icons.apple, color: colorScheme.onSurface, size: 26),
                       label: 'Continue with Apple',
-                      opacity: 0.6, // Slightly reduced opacity for social buttons
+                      opacity: 0.6,
                     ),
                   ),
-                ),
+                 ),
                 const SizedBox(height: 16),
+
+                // Google Button
+                 FadeTransition(
+                   opacity: _fadeSocial2Animation,
+                   child: SlideTransition(
+                     position: _slideSocial2Animation,
+                     child: buildSocialButton(
+                       onPressed: () { HapticFeedback.mediumImpact(); /* TODO */ },
+                       icon: SvgPicture.asset('assets/images/google_logo.svg', width: 22, height: 22),
+                       label: 'Continue with Google',
+                       opacity: 0.6,
+                     ),
+                   ),
+                 ),
+                 // Add significant spacing to push footer content down
+                 const SizedBox(height: 60),
+
+                // --- Footer Section --- 
+                // Second Divider
                 FadeTransition(
-                  opacity: _fadeSocial2Animation,
-                  child: SlideTransition(
-                    position: _slideSocial2Animation,
-                    child: buildSocialButton(
-                      onPressed: () {
-                         HapticFeedback.mediumImpact();
-                        // TODO: Implement Google Sign In
-                      },
-                      icon: SvgPicture.asset(
-                        'assets/images/google_logo.svg',
-                        width: 22,
-                        height: 22,
-                        placeholderBuilder: (context) => Icon(
-                          Icons.g_mobiledata,
-                          color: colorScheme.onSurface,
-                          size: 24,
-                        ),
-                      ),
-                      label: 'Continue with Google',
-                      opacity: 0.6, // Slightly reduced opacity for social buttons
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 32),
-                _buildDivider(context),
+                   opacity: _fadeDivider2Animation,
+                   child: SlideTransition(
+                     position: _slideDivider2Animation,
+                     child: _buildDivider(context),
+                   ),
+                 ),
                 const SizedBox(height: 24),
+
+                // Find Account Button
+                 FadeTransition(
+                   opacity: _fadeFooterAnimation,
+                   child: SlideTransition(
+                     position: _slideFooterAnimation,
+                     child: _buildFindAccount(context),
+                   ),
+                 ),
+                const SizedBox(height: 24),
+
+                // Consent Text
                 FadeTransition(
-                  opacity: _fadeFooterAnimation,
+                  opacity: _fadeFooterAnimation, 
                   child: SlideTransition(
                     position: _slideFooterAnimation,
                     child: _buildConsentText(context),
@@ -548,9 +515,67 @@ class _OnboardingScreenState extends State<OnboardingScreen> with SingleTickerPr
 
   Widget _buildDivider(BuildContext context) {
     final theme = Theme.of(context);
-    return Divider(
-      color: theme.colorScheme.outlineVariant,
-      thickness: 1,
+     // Add Padding for visual spacing and ensure it's not Expanded
+     return Padding(
+       padding: const EdgeInsets.symmetric(horizontal: 40.0), // Adjust horizontal padding as needed
+       child: Row(
+         children: [
+           Expanded(child: Divider(color: theme.colorScheme.outlineVariant, thickness: 1)),
+           Padding(
+             padding: const EdgeInsets.symmetric(horizontal: 16.0),
+             child: Text('or', style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant)),
+           ),
+           Expanded(child: Divider(color: theme.colorScheme.outlineVariant, thickness: 1)),
+         ],
+       ),
+     );
+  }
+
+  // Updated Find Account Button Builder
+  Widget _buildFindAccount(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final textTheme = theme.textTheme;
+
+    return TapScaleEffect( // Keep tap effect
+      onTap: () {
+        HapticFeedback.lightImpact();
+        // TODO: Implement Find Account logic
+      },
+      child: Container( // Wrap with Container for styling
+          padding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 16.0), // Adjust padding
+          decoration: BoxDecoration(
+            color: colorScheme.surface.withOpacity(0.4), // Subtle background
+            borderRadius: BorderRadius.circular(12),
+             // Optional: Add subtle shadow for depth
+             boxShadow: [
+               BoxShadow(
+                 color: Colors.black.withOpacity(0.1), 
+                 blurRadius: 4,
+                 offset: const Offset(0, 2),
+               )
+             ]
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center, // Center the row content
+            mainAxisSize: MainAxisSize.min, // Row takes minimum space needed
+            children: [
+              Icon(
+                Icons.search,
+                size: 20,
+                color: colorScheme.onSurfaceVariant,
+              ),
+              const SizedBox(width: 8),
+              Text(
+                'Find my account',
+                style: textTheme.bodyMedium?.copyWith(
+                  fontWeight: FontWeight.w600,
+                  color: colorScheme.onSurfaceVariant,
+                ),
+              ),
+            ],
+          ),
+      ),
     );
   }
 
@@ -564,8 +589,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> with SingleTickerPr
           color: theme.colorScheme.onSurfaceVariant,
           height: 1.4,
         ),
-        textAlign: TextAlign.start, // Left-align consent text
+        textAlign: TextAlign.center, // Keep Center-align consent text
       ),
     );
   }
-} 
+}
