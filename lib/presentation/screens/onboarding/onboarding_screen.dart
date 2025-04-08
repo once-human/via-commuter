@@ -238,7 +238,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> with SingleTickerPr
         _showCountryPicker(context);
       },
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         decoration: BoxDecoration(
           color: colorScheme.surface,
           borderRadius: BorderRadius.circular(12),
@@ -413,7 +413,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> with SingleTickerPr
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            SizedBox(width: 24, height: 24, child: icon),
+            SizedBox(width: 22, height: 22, child: icon),
             const SizedBox(width: 12),
             Text(
               label,
@@ -430,236 +430,218 @@ class _OnboardingScreenState extends State<OnboardingScreen> with SingleTickerPr
 
     return Scaffold(
       backgroundColor: colorScheme.background,
-      body: Stack(
-        children: [
-          SafeArea(
-            bottom: false,
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 24.0),
-              // Remove the overall Fade/Slide transition from here
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  const SizedBox(height: 80),
-                  // Wrap Input Row with its animation
-                  FadeTransition(
-                    opacity: _fadeInputAnimation,
-                    child: SlideTransition(
-                      position: _slideInputAnimation,
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          _buildCountryCodeSelector(context),
-                          const SizedBox(width: 8),
-                          buildPhoneNumberInput(),
-                        ],
+      body: SafeArea(
+        child: Center(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 40.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                FadeTransition(
+                  opacity: _fadeHeaderAnimation,
+                  child: SlideTransition(
+                    position: _slideHeaderAnimation,
+                    child: Text(
+                      'VIA',
+                      textAlign: TextAlign.center,
+                      style: textTheme.displayMedium?.copyWith(
+                        color: colorScheme.onBackground,
+                        fontWeight: FontWeight.w600,
                       ),
                     ),
                   ),
-                  const SizedBox(height: 24),
-                  // Continue Button Animation
-                  FadeTransition(
-                    opacity: _fadeContinueBtnAnimation,
-                    child: SlideTransition(
-                      position: _slideContinueBtnAnimation,
-                      child: buildStyledButton(
-                        onPressed: () {
-                          if (_phoneController.text.length >= 6) {
-                            HapticFeedback.heavyImpact();
-                            context.go('/home');
-                          } else {
-                            HapticFeedback.mediumImpact();
-                          }
-                        },
-                        backgroundColor: colorScheme.primary,
-                        foregroundColor: colorScheme.onPrimary,
-                        elevation: 3.0,
-                        child: Text(
-                          'CONTINUE',
-                          style: textTheme.labelLarge?.copyWith(
-                            letterSpacing: 1.2,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 15,
-                          ),
-                        ),
-                      ),
+                ),
+                const SizedBox(height: 60),
+                FadeTransition(
+                  opacity: _fadeInputAnimation,
+                  child: SlideTransition(
+                    position: _slideInputAnimation,
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _buildCountryCodeSelector(context),
+                        const SizedBox(width: 8),
+                        buildPhoneNumberInput(),
+                      ],
                     ),
                   ),
-                  const SizedBox(height: 30),
-                  // "or" Separator - Apply footer animation (or a separate one if needed)
-                  FadeTransition(
-                    opacity: _fadeFooterAnimation, // Reuse footer or create specific one
-                    child: SlideTransition(
-                      position: _slideFooterAnimation,
-                      child: Row(
-                        children: [
-                          Expanded(child: Divider(color: colorScheme.outline.withOpacity(0.2), thickness: 1)),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                            child: Text(
-                              'or',
-                              style: textTheme.bodySmall?.copyWith(
-                                color: colorScheme.onSurfaceVariant.withOpacity(0.7),
-                              ),
-                            ),
-                          ),
-                          Expanded(child: Divider(color: colorScheme.outline.withOpacity(0.2), thickness: 1)),
-                        ],
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 30),
-                  // Social Button 1 Animation
-                  FadeTransition(
-                    opacity: _fadeSocial1Animation,
-                    child: SlideTransition(
-                      position: _slideSocial1Animation,
-                      child: buildSocialButton(
-                        onPressed: () {
+                ),
+                const SizedBox(height: 24),
+                FadeTransition(
+                  opacity: _fadeContinueBtnAnimation,
+                  child: SlideTransition(
+                    position: _slideContinueBtnAnimation,
+                    child: buildStyledButton(
+                      onPressed: () {
+                        if (_phoneController.text.length >= 6) {
+                          HapticFeedback.heavyImpact();
+                          context.go('/home');
+                        } else {
                           HapticFeedback.mediumImpact();
-                          // TODO: Implement Apple Sign In
-                        },
-                        icon: Icon(
-                          Icons.apple,
+                        }
+                      },
+                      backgroundColor: colorScheme.primary,
+                      foregroundColor: colorScheme.onPrimary,
+                      elevation: 3.0,
+                      child: Text(
+                        'CONTINUE',
+                        style: textTheme.labelLarge?.copyWith(
+                          letterSpacing: 1.2,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 15,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 30),
+                FadeTransition(
+                  opacity: _fadeSocial1Animation,
+                  child: SlideTransition(
+                    position: _slideSocial1Animation,
+                    child: Row(
+                      children: [
+                        Expanded(child: Divider(color: colorScheme.outline.withOpacity(0.2), thickness: 1)),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                          child: Text(
+                            'or',
+                            style: textTheme.bodySmall?.copyWith(
+                              color: colorScheme.onSurfaceVariant.withOpacity(0.7),
+                            ),
+                          ),
+                        ),
+                        Expanded(child: Divider(color: colorScheme.outline.withOpacity(0.2), thickness: 1)),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 30),
+                FadeTransition(
+                  opacity: _fadeSocial1Animation,
+                  child: SlideTransition(
+                    position: _slideSocial1Animation,
+                    child: buildSocialButton(
+                      onPressed: () {
+                        HapticFeedback.mediumImpact();
+                        // TODO: Implement Apple Sign In
+                      },
+                      icon: Icon(
+                        Icons.apple,
+                        color: colorScheme.onSurface,
+                        size: 26,
+                      ),
+                      label: 'Continue with Apple',
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                FadeTransition(
+                  opacity: _fadeSocial2Animation,
+                  child: SlideTransition(
+                    position: _slideSocial2Animation,
+                    child: buildSocialButton(
+                      onPressed: () {
+                         HapticFeedback.mediumImpact();
+                        // TODO: Implement Google Sign In
+                      },
+                      icon: SvgPicture.asset(
+                        'assets/images/google_logo.svg',
+                        width: 22,
+                        height: 22,
+                        placeholderBuilder: (context) => Icon(
+                          Icons.g_mobiledata,
                           color: colorScheme.onSurface,
-                          size: 22,
+                          size: 24,
                         ),
-                        label: 'Continue with Apple',
                       ),
+                      label: 'Continue with Google',
                     ),
                   ),
-                  const SizedBox(height: 16),
-                  // Social Button 2 Animation
-                  FadeTransition(
-                    opacity: _fadeSocial2Animation,
-                    child: SlideTransition(
-                      position: _slideSocial2Animation,
-                      child: buildSocialButton(
-                        onPressed: () {
-                           HapticFeedback.mediumImpact();
-                          // TODO: Implement Google Sign In
-                        },
-                        icon: SvgPicture.asset(
-                          'assets/images/google_logo.svg',
-                          width: 22,
-                          height: 22,
-                          colorFilter: ColorFilter.mode(colorScheme.onSurface, BlendMode.srcIn),
-                          placeholderBuilder: (context) => Icon(
-                            Icons.g_mobiledata,
-                            color: colorScheme.onSurface,
-                            size: 24,
-                          ),
-                        ),
-                        label: 'Continue with Google',
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 40),
-                  // "or" Separator - Apply footer animation
-                  FadeTransition(
-                    opacity: _fadeFooterAnimation,
-                    child: SlideTransition(
-                      position: _slideFooterAnimation,
-                      child: Row(
-                        children: [
-                          Expanded(child: Divider(color: colorScheme.outline.withOpacity(0.2), thickness: 1)),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                            child: Text(
-                              'or',
-                              style: textTheme.bodySmall?.copyWith(
-                                color: colorScheme.onSurfaceVariant.withOpacity(0.7),
-                              ),
+                ),
+                const SizedBox(height: 60),
+                FadeTransition(
+                  opacity: _fadeFooterAnimation,
+                  child: SlideTransition(
+                    position: _slideFooterAnimation,
+                    child: Row(
+                      children: [
+                        Expanded(child: Divider(color: colorScheme.outline.withOpacity(0.2), thickness: 1)),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                          child: Text(
+                            'or',
+                            style: textTheme.bodySmall?.copyWith(
+                              color: colorScheme.onSurfaceVariant.withOpacity(0.7),
                             ),
                           ),
-                          Expanded(child: Divider(color: colorScheme.outline.withOpacity(0.2), thickness: 1)),
-                        ],
-                      ),
+                        ),
+                        Expanded(child: Divider(color: colorScheme.outline.withOpacity(0.2), thickness: 1)),
+                      ],
                     ),
                   ),
-                  const SizedBox(height: 24),
-                  // Find Account & Consent Animation Group
-                  FadeTransition(
-                    opacity: _fadeFooterAnimation,
-                    child: SlideTransition(
-                      position: _slideFooterAnimation,
-                      child: Column(
-                        children: [
-                          TextButton(
-                            onPressed: () {
-                              HapticFeedback.lightImpact();
-                              // TODO: Implement Find Account logic
-                            },
-                            style: TextButton.styleFrom(
-                              foregroundColor: colorScheme.onSurfaceVariant,
-                              padding: const EdgeInsets.symmetric(vertical: 12),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(8),
-                              ),
+                ),
+                const SizedBox(height: 24),
+                FadeTransition(
+                  opacity: _fadeFooterAnimation,
+                  child: SlideTransition(
+                    position: _slideFooterAnimation,
+                    child: Column(
+                      children: [
+                        TextButton(
+                          onPressed: () {
+                            HapticFeedback.lightImpact();
+                            // TODO: Implement Find Account logic
+                          },
+                          style: TextButton.styleFrom(
+                            foregroundColor: colorScheme.onSurfaceVariant,
+                            padding: const EdgeInsets.symmetric(vertical: 12),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
                             ),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(
-                                  Icons.search,
-                                  size: 22,
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.search,
+                                size: 22,
+                                color: colorScheme.onSurfaceVariant,
+                              ),
+                              const SizedBox(width: 8),
+                              Text(
+                                'Find my account',
+                                style: textTheme.bodyMedium?.copyWith(
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 15,
                                   color: colorScheme.onSurfaceVariant,
                                 ),
-                                const SizedBox(width: 8),
-                                Text(
-                                  'Find my account',
-                                  style: textTheme.bodyMedium?.copyWith(
-                                    fontWeight: FontWeight.w600,
-                                    fontSize: 15,
-                                    color: colorScheme.onSurfaceVariant,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          const SizedBox(height: 24),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                            child: Text(
-                              'By proceeding, you consent to get calls, Whatsapp or SMS/RCS messages, including by automated means, from XYZ and its affiliates to the number provided',
-                              textAlign: TextAlign.center,
-                              style: textTheme.bodySmall?.copyWith(
-                                color: colorScheme.onSurfaceVariant.withOpacity(0.7),
-                                height: 1.4,
-                                fontSize: 12,
                               ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: 24),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                          child: Text(
+                            'By proceeding, you consent to get calls, Whatsapp or SMS/RCS messages, including by automated means, from XYZ and its affiliates to the number provided',
+                            textAlign: TextAlign.center,
+                            style: textTheme.bodySmall?.copyWith(
+                              color: colorScheme.onSurfaceVariant.withOpacity(0.7),
+                              height: 1.4,
+                              fontSize: 12,
                             ),
                           ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
                   ),
-                  const SizedBox(height: 120),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
-          // Positioned Back Button (FAB style)
-          Positioned(
-            left: 24,
-            bottom: 30,
-            child: SafeArea(
-              child: FloatingActionButton(
-                onPressed: () {
-                  HapticFeedback.mediumImpact();
-                  if (context.canPop()) {
-                    context.pop();
-                  }
-                },
-                backgroundColor: colorScheme.surfaceContainerHighest,
-                foregroundColor: colorScheme.onSurface,
-                elevation: 4,
-                shape: const CircleBorder(),
-                child: const Icon(Icons.arrow_back_rounded, size: 24),
-              ),
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }
