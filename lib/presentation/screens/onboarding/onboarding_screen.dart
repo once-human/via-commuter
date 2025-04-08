@@ -589,7 +589,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> with SingleTickerPr
           color: theme.colorScheme.onSurfaceVariant,
           height: 1.4,
         ),
-        textAlign: TextAlign.center, // Keep Center-align consent text
+        textAlign: TextAlign.justify,
       ),
     );
   }
