@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:via_commuter/presentation/widgets/bottom_nav_bar.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -12,6 +13,7 @@ class HomeScreen extends StatelessWidget {
       body: const Center(
         child: Text('Welcome to Via Commuter'),
       ),
+      bottomNavigationBar: const BottomNavBar(),
     );
   }
 } 

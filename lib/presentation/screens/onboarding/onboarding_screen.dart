@@ -451,7 +451,11 @@ class _OnboardingScreenState extends State<OnboardingScreen> with SingleTickerPr
                   child: SlideTransition(
                     position: _slideSocial1Animation,
                     child: buildSocialButton(
-                      onPressed: () { HapticFeedback.mediumImpact(); /* TODO */ },
+                      onPressed: () { 
+                        HapticFeedback.mediumImpact(); 
+                        context.go('/home'); // Navigate to home
+                        /* TODO */ 
+                      },
                       icon: Icon(Icons.apple, color: colorScheme.onSurface, size: 26),
                       label: 'Continue with Apple',
                       opacity: 0.6,
@@ -466,7 +470,11 @@ class _OnboardingScreenState extends State<OnboardingScreen> with SingleTickerPr
                    child: SlideTransition(
                      position: _slideSocial2Animation,
                      child: buildSocialButton(
-                       onPressed: () { HapticFeedback.mediumImpact(); /* TODO */ },
+                       onPressed: () { 
+                         HapticFeedback.mediumImpact(); 
+                         context.go('/home'); // Navigate to home
+                         /* TODO */ 
+                       },
                        icon: SvgPicture.asset('assets/images/google_logo.svg', width: 22, height: 22),
                        label: 'Continue with Google',
                        opacity: 0.6,
