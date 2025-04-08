@@ -231,36 +231,41 @@ class _OnboardingScreenState extends State<OnboardingScreen> with SingleTickerPr
     final colorScheme = theme.colorScheme;
     final textTheme = theme.textTheme;
 
-    // Wrap with TapScaleEffect
-    return TapScaleEffect(
-      onTap: () {
-        HapticFeedback.mediumImpact();
-        _showCountryPicker(context);
-      },
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-        decoration: BoxDecoration(
-          color: colorScheme.surface,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: colorScheme.outline.withOpacity(0.1),
-            width: 1,
+    // Wrap with SizedBox to enforce height matching the TextField
+    return SizedBox(
+      height: 58, // Explicit height to match TextField based on theme padding
+      child: TapScaleEffect(
+        onTap: () {
+          HapticFeedback.mediumImpact();
+          _showCountryPicker(context);
+        },
+        child: Container(
+          // Keep existing padding for internal content alignment
+          padding: const EdgeInsets.symmetric(horizontal: 16), // Vertical padding removed as height is fixed
+          decoration: BoxDecoration(
+            color: colorScheme.surface.withOpacity(0.7),
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(
+              color: colorScheme.outline.withOpacity(0.1),
+              width: 1,
+            ),
           ),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              _selectedCountry.flagEmoji,
-              style: textTheme.titleMedium?.copyWith(fontSize: 24),
-            ),
-            const SizedBox(width: 6),
-            Icon(
-              Icons.keyboard_arrow_down_rounded,
-              color: colorScheme.onSurfaceVariant,
-              size: 20,
-            ),
-          ],
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center, // Center content vertically
+            children: [
+              Text(
+                _selectedCountry.flagEmoji,
+                style: textTheme.titleMedium?.copyWith(fontSize: 24),
+              ),
+              const SizedBox(width: 6),
+              Icon(
+                Icons.keyboard_arrow_down_rounded,
+                color: colorScheme.onSurfaceVariant,
+                size: 20,
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -271,7 +276,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> with SingleTickerPr
     final theme = Theme.of(context);
     showCountryPicker(
       context: context,
-      favorite: ['IN', 'US', 'GB'], // Optional: Add favorite countries
+      favorite: ['IN', 'US', 'GB'],
       showPhoneCode: true,
       onSelect: (Country country) {
         HapticFeedback.mediumImpact();
@@ -280,24 +285,28 @@ class _OnboardingScreenState extends State<OnboardingScreen> with SingleTickerPr
           _selectedCountryCode = '+${country.phoneCode}';
         });
       },
+      // Use the correct parameter name and provide standard theme data
       countryListTheme: CountryListThemeData(
-        backgroundColor: theme.colorScheme.surface, // Dark surface for the list
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-        inputDecoration: InputDecoration(
-          hintText: 'Search country',
-          hintStyle: TextStyle(color: theme.colorScheme.onSurfaceVariant.withOpacity(0.7)),
-          prefixIcon: Icon(Icons.search, color: theme.colorScheme.onSurfaceVariant),
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: BorderSide.none,
+          backgroundColor: theme.colorScheme.surface, // Use surface color for sheet bg
+          searchTextStyle: TextStyle(color: theme.colorScheme.onSurface),
+          textStyle: TextStyle(color: theme.colorScheme.onSurface),
+          bottomSheetHeight: MediaQuery.of(context).size.height * 0.7,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+          // Keep input decoration styling
+          inputDecoration: InputDecoration(
+              hintText: 'Search country',
+              hintStyle: TextStyle(color: theme.colorScheme.onSurfaceVariant.withOpacity(0.7)),
+              prefixIcon: Icon(Icons.search, color: theme.colorScheme.onSurfaceVariant),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide.none,
+              ),
+              filled: true,
+              fillColor: theme.colorScheme.surfaceContainerHighest, 
           ),
-          filled: true,
-          fillColor: theme.colorScheme.surfaceContainerHighest,
-        ),
-        searchTextStyle: TextStyle(color: theme.colorScheme.onSurface),
-        textStyle: TextStyle(color: theme.colorScheme.onSurface),
-        bottomSheetHeight: MediaQuery.of(context).size.height * 0.7, // Control height
       ),
+      // REMOVE the custom bottomSheetBuilder
+      // bottomSheetBuilder: (context) { ... }, 
     );
   }
 
@@ -307,59 +316,40 @@ class _OnboardingScreenState extends State<OnboardingScreen> with SingleTickerPr
     final colorScheme = theme.colorScheme;
     final textTheme = theme.textTheme;
 
-    // Updated buildPhoneNumberInput
-    Widget buildPhoneNumberInput() {
+    // Updated buildPhoneInput
+    Widget _buildPhoneInput(BuildContext context) {
+      final theme = Theme.of(context);
+      final colorScheme = theme.colorScheme;
+      // No longer need explicit border radius or fill color here,
+      // it will inherit from the theme's InputDecorationTheme
       return Expanded(
         child: TextField(
           controller: _phoneController,
           keyboardType: TextInputType.phone,
-          inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-          style: textTheme.bodyLarge?.copyWith(
-            color: colorScheme.onSurface, // Text color inside input
-            letterSpacing: 1.2, // Increased spacing like Figma
-            fontSize: 16, // Adjust font size if needed
+          style: TextStyle(
+            color: colorScheme.onSurface,
+            fontWeight: FontWeight.w500, // Medium
           ),
           decoration: InputDecoration(
-            filled: true,
-            fillColor: colorScheme.surface,
-            hintText: '+${_selectedCountry.phoneCode} XXXX XXXX', // Dynamic hint
-            hintStyle: textTheme.bodyLarge?.copyWith(
-              color: colorScheme.onSurfaceVariant.withOpacity(0.5), // Hint color
-              letterSpacing: 1.2,
-              fontSize: 16,
-            ),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide.none, // No border by default
-            ),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(
-                color: colorScheme.outline.withOpacity(0.1), // Subtle border when enabled
-              ),
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(
-                color: colorScheme.primary, // Highlight on focus
-                width: 1.5, // Slightly thicker border on focus
-              ),
-            ),
-            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
-            suffixIcon: Padding(
-              padding: const EdgeInsets.only(right: 12.0),
-              child: Icon(
-                Icons.account_circle_outlined, // Icon matching Figma
-                color: colorScheme.onSurfaceVariant,
-                size: 24,
-              ),
-            ),
+            hintText: 'Enter phone number',
+            // Remove explicit decoration properties, inherit from theme
+            // fillColor: colorScheme.surface.withOpacity(0.7),
+            // border: OutlineInputBorder(
+            //   borderRadius: BorderRadius.circular(16),
+            //   borderSide: BorderSide.none,
+            // ),
+            // filled: true,
           ),
+          onChanged: (value) {
+            setState(() {
+              // Basic validation logic could go here if needed
+            });
+          },
         ),
       );
     }
 
-    // buildStyledButton remains largely the same, adjust colors if needed
+    // Updated buildStyledButton
     ElevatedButton buildStyledButton({
       required VoidCallback onPressed,
       required Widget child,
@@ -369,25 +359,22 @@ class _OnboardingScreenState extends State<OnboardingScreen> with SingleTickerPr
       double? minHeight,
       EdgeInsetsGeometry padding = const EdgeInsets.symmetric(vertical: 18),
       BorderSide? side,
-      double elevation = 2.0, // Default elevation
+      double elevation = 2.0,
     }) {
-      // Wrap the ElevatedButton's child logic with TapScaleEffect
-      // NOTE: We wrap the *button itself* later when we call this builder
       return ElevatedButton(
-        onPressed: onPressed, // Haptics/logic handled where button is used
+        onPressed: onPressed,
         style: ElevatedButton.styleFrom(
-          backgroundColor: backgroundColor,
+          backgroundColor: backgroundColor.withOpacity(backgroundColor == colorScheme.surface ? 0.85 : 1.0),
           foregroundColor: foregroundColor,
           minimumSize: Size(minWidth ?? double.infinity, minHeight ?? 56),
-          padding: EdgeInsets.zero, // Padding applied inside TapScaleEffect child
+          padding: EdgeInsets.zero,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(16),
             side: side ?? BorderSide.none,
           ),
           elevation: elevation,
-          shadowColor: Colors.black.withOpacity(0.15),
+          shadowColor: Colors.black.withOpacity(0.1),
         ),
-        // The actual content passed to the button
         child: Padding(padding: padding, child: child),
       );
     }
@@ -397,33 +384,33 @@ class _OnboardingScreenState extends State<OnboardingScreen> with SingleTickerPr
       required VoidCallback onPressed,
       required Widget icon,
       required String label,
+      double opacity = 0.7, // Default opacity if not provided
     }) {
-      // The button built here will be wrapped later
-      return buildStyledButton(
-        onPressed: onPressed, // Pass the original callback
-        backgroundColor: colorScheme.surface,
-        foregroundColor: colorScheme.onSurface,
-        padding: const EdgeInsets.symmetric(vertical: 16),
-        minHeight: 52,
-        side: BorderSide(
-          color: colorScheme.outline.withOpacity(0.15),
-          width: 1,
-        ),
-        elevation: 1.0,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            SizedBox(width: 22, height: 22, child: icon),
-            const SizedBox(width: 12),
-            Text(
-              label,
-              style: textTheme.bodyMedium?.copyWith(
-                fontWeight: FontWeight.w600,
-                color: colorScheme.onSurface,
-                fontSize: 15,
-              ),
+      return TapScaleEffect(
+        onTap: onPressed,
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 16), // Keep consistent vertical padding
+          decoration: BoxDecoration(
+            color: colorScheme.surface.withOpacity(opacity), // Use passed opacity
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(
+              color: colorScheme.outline.withOpacity(0.1),
+              width: 1,
             ),
-          ],
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              SizedBox(width: 22, height: 22, child: Center(child: icon)),
+              const SizedBox(width: 12),
+              Text(
+                label,
+                style: textTheme.bodyLarge?.copyWith(
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ],
+          ),
         ),
       );
     }
@@ -444,15 +431,14 @@ class _OnboardingScreenState extends State<OnboardingScreen> with SingleTickerPr
                     position: _slideHeaderAnimation,
                     child: Text(
                       'VIA',
-                      textAlign: TextAlign.center,
-                      style: textTheme.displayMedium?.copyWith(
-                        color: colorScheme.onBackground,
-                        fontWeight: FontWeight.w600,
+                      style: theme.textTheme.displayLarge?.copyWith(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 64, // Reduce font size slightly
                       ),
                     ),
                   ),
                 ),
-                const SizedBox(height: 60),
+                const SizedBox(height: 40),
                 FadeTransition(
                   opacity: _fadeInputAnimation,
                   child: SlideTransition(
@@ -462,7 +448,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> with SingleTickerPr
                       children: [
                         _buildCountryCodeSelector(context),
                         const SizedBox(width: 8),
-                        buildPhoneNumberInput(),
+                        _buildPhoneInput(context),
                       ],
                     ),
                   ),
@@ -495,29 +481,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> with SingleTickerPr
                     ),
                   ),
                 ),
-                const SizedBox(height: 30),
-                FadeTransition(
-                  opacity: _fadeSocial1Animation,
-                  child: SlideTransition(
-                    position: _slideSocial1Animation,
-                    child: Row(
-                      children: [
-                        Expanded(child: Divider(color: colorScheme.outline.withOpacity(0.2), thickness: 1)),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                          child: Text(
-                            'or',
-                            style: textTheme.bodySmall?.copyWith(
-                              color: colorScheme.onSurfaceVariant.withOpacity(0.7),
-                            ),
-                          ),
-                        ),
-                        Expanded(child: Divider(color: colorScheme.outline.withOpacity(0.2), thickness: 1)),
-                      ],
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 30),
+                const SizedBox(height: 32),
+                _buildDivider(context),
+                const SizedBox(height: 32),
                 FadeTransition(
                   opacity: _fadeSocial1Animation,
                   child: SlideTransition(
@@ -533,6 +499,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> with SingleTickerPr
                         size: 26,
                       ),
                       label: 'Continue with Apple',
+                      opacity: 0.6, // Slightly reduced opacity for social buttons
                     ),
                   ),
                 ),
@@ -557,91 +524,47 @@ class _OnboardingScreenState extends State<OnboardingScreen> with SingleTickerPr
                         ),
                       ),
                       label: 'Continue with Google',
+                      opacity: 0.6, // Slightly reduced opacity for social buttons
                     ),
                   ),
                 ),
-                const SizedBox(height: 60),
-                FadeTransition(
-                  opacity: _fadeFooterAnimation,
-                  child: SlideTransition(
-                    position: _slideFooterAnimation,
-                    child: Row(
-                      children: [
-                        Expanded(child: Divider(color: colorScheme.outline.withOpacity(0.2), thickness: 1)),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                          child: Text(
-                            'or',
-                            style: textTheme.bodySmall?.copyWith(
-                              color: colorScheme.onSurfaceVariant.withOpacity(0.7),
-                            ),
-                          ),
-                        ),
-                        Expanded(child: Divider(color: colorScheme.outline.withOpacity(0.2), thickness: 1)),
-                      ],
-                    ),
-                  ),
-                ),
+                const SizedBox(height: 32),
+                _buildDivider(context),
                 const SizedBox(height: 24),
                 FadeTransition(
                   opacity: _fadeFooterAnimation,
                   child: SlideTransition(
                     position: _slideFooterAnimation,
-                    child: Column(
-                      children: [
-                        TextButton(
-                          onPressed: () {
-                            HapticFeedback.lightImpact();
-                            // TODO: Implement Find Account logic
-                          },
-                          style: TextButton.styleFrom(
-                            foregroundColor: colorScheme.onSurfaceVariant,
-                            padding: const EdgeInsets.symmetric(vertical: 12),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                          ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(
-                                Icons.search,
-                                size: 22,
-                                color: colorScheme.onSurfaceVariant,
-                              ),
-                              const SizedBox(width: 8),
-                              Text(
-                                'Find my account',
-                                style: textTheme.bodyMedium?.copyWith(
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 15,
-                                  color: colorScheme.onSurfaceVariant,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(height: 24),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                          child: Text(
-                            'By proceeding, you consent to get calls, Whatsapp or SMS/RCS messages, including by automated means, from XYZ and its affiliates to the number provided',
-                            textAlign: TextAlign.center,
-                            style: textTheme.bodySmall?.copyWith(
-                              color: colorScheme.onSurfaceVariant.withOpacity(0.7),
-                              height: 1.4,
-                              fontSize: 12,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
+                    child: _buildConsentText(context),
                   ),
                 ),
               ],
             ),
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildDivider(BuildContext context) {
+    final theme = Theme.of(context);
+    return Divider(
+      color: theme.colorScheme.outlineVariant,
+      thickness: 1,
+    );
+  }
+
+  Widget _buildConsentText(BuildContext context) {
+    final theme = Theme.of(context);
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Text(
+        'By proceeding, you consent to get calls, Whatsapp or SMS/RCS messages, including by automated means, from XYZ and its affiliates to the number provided',
+        style: theme.textTheme.bodySmall?.copyWith(
+          color: theme.colorScheme.onSurfaceVariant,
+          height: 1.4,
+        ),
+        textAlign: TextAlign.start, // Left-align consent text
       ),
     );
   }
