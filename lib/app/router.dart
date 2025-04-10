@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:via_commuter/presentation/screens/home_screen.dart';
+import 'package:via_commuter/presentation/screens/home/home_screen.dart';
 import 'package:via_commuter/presentation/screens/onboarding/onboarding_screen.dart';
 
 class AppRouter {
