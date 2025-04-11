@@ -1,5 +1,6 @@
 import 'dart:ui'; // Import for ImageFilter
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart'; // For HapticFeedback
 // Import the custom bottom nav bar
 import 'package:via_commuter/presentation/widgets/bottom_navbar.dart'; // Adjust import path if needed
 
@@ -10,112 +11,149 @@ class HomeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    
-    // Use a slightly darker background for better contrast with glass effect
+    final textTheme = theme.textTheme;
+    // Get screen width for responsive adjustments if needed
+    // final screenWidth = MediaQuery.of(context).size.width;
+
+    // --- Placeholder Data ---
+    const String userName = "Khushi";
+    const String points = "+"; // Placeholder for points icon/value
+    const String pickupLocation = "Pickup: location";
+    const String dropLocation = "Drop: Location";
+    const String pickupTime = "9:00 am";
+    const String dropTime = "10:00 am";
+    const String driverName = "Soham Thatte";
+    const String driverImageUrl = ""; // Placeholder - use asset or network
+    const double driverRating = 4.5;
+    const String otp = "OTP 1234";
+    const String vehicleModel = "Omni Van";
+    const String vehicleNumber = "KA 12 8091";
+    // --- End Placeholder Data ---
+
     return Scaffold(
-      backgroundColor: colorScheme.background.withOpacity(0.95), // Darker background
-      appBar: AppBar(
-        title: Text(
-          'Home',
-          style: TextStyle(color: colorScheme.onSurface), // Ensure title is visible
-        ),
-        automaticallyImplyLeading: false,
-        backgroundColor: Colors.transparent, // Keep app bar transparent
-        elevation: 0,
-        flexibleSpace: ClipRRect( // Apply clipping for potential rounding
-          child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-            child: Container(
-              // Slightly more opaque surface for app bar
-              color: colorScheme.surface.withOpacity(0.2), 
-              // Optional: Add border if needed
-              // decoration: BoxDecoration(
-              //   border: Border(bottom: BorderSide(color: colorScheme.outline.withOpacity(0.2))),
-              // ),
-            ),
-          ),
-        ),
-      ),
-      extendBody: true, // Extend body behind AppBar and BottomNavBar
-      extendBodyBehindAppBar: true, // Ensure body goes behind AppBar
-      body: SafeArea( // SafeArea handles notches and system bars
-        bottom: false, // Don't apply bottom padding, handled by BottomNavBar spacing
+      backgroundColor: colorScheme.background, // Dark background
+      // No AppBar in this design
+      body: SingleChildScrollView(
         child: Padding(
-          // Adjust top padding to account for AppBar height + extra space
-          padding: EdgeInsets.only(
-            top: kToolbarHeight + MediaQuery.of(context).padding.top + 16.0, 
-            left: 16.0, 
-            right: 16.0,
-            // No bottom padding here, let content scroll behind nav bar
-          ),
+          padding: const EdgeInsets.symmetric(horizontal: 16.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // No top SizedBox needed, handled by padding
-              Text(
-                'Good morning!',
-                style: theme.textTheme.headlineMedium?.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: colorScheme.onSurface, // Ensure text visibility
-                ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                'Here are your upcoming rides',
-                style: theme.textTheme.bodyLarge?.copyWith(
-                  color: colorScheme.onSurface.withOpacity(0.7),
-                ),
-              ),
-              const SizedBox(height: 16), // Reduced spacing before card
-              // Glassmorphism container for rides list
-              Expanded(
-                child: ClipRRect( // Clip for rounded corners
-                  borderRadius: BorderRadius.circular(24.0), // Slightly more rounded corners
-                  child: BackdropFilter( // Apply blur effect
-                    filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10), // Increased blur slightly
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(vertical: 8.0), // Padding for the list items
-                      // Semi-transparent background with subtle border
-                      decoration: BoxDecoration(
-                        color: colorScheme.surfaceVariant.withOpacity(0.2), // Keep opacity
-                        borderRadius: BorderRadius.circular(24.0), // Match ClipRRect
-                        border: Border.all(
-                          color: colorScheme.outline.withOpacity(0.15), // Subtle border
-                          width: 1,
+              SizedBox(height: MediaQuery.of(context).padding.top + 24), // Top safe area + padding
+              
+              // --- Greeting and Points --- 
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Hi $userName,',
+                        style: textTheme.headlineMedium?.copyWith(
+                          fontWeight: FontWeight.bold,
+                          color: colorScheme.onBackground,
                         ),
                       ),
-                      // Replace Center with a ListView containing dummy data
-                      child: ListView(
-                        padding: EdgeInsets.zero, // Remove default ListView padding
-                        children: [
-                          _buildDummyRideTile(context, 
-                            icon: Icons.location_on_outlined,
-                            title: '123 Main St, Anytown',
-                            subtitle: 'Today, 4:30 PM - John D.',
-                            colorScheme: colorScheme,
-                          ),
-                          Divider(height: 1, thickness: 0.5, indent: 16, endIndent: 16, color: colorScheme.outline.withOpacity(0.2)),
-                          _buildDummyRideTile(context, 
-                            icon: Icons.work_outline, 
-                            title: 'Office Complex B',
-                            subtitle: 'Tomorrow, 9:00 AM - Sarah K.',
-                            colorScheme: colorScheme,
-                          ),
-                          Divider(height: 1, thickness: 0.5, indent: 16, endIndent: 16, color: colorScheme.outline.withOpacity(0.2)),
-                          _buildDummyRideTile(context, 
-                            icon: Icons.local_airport_outlined, 
-                            title: 'Anytown International Airport',
-                            subtitle: 'Wed, 11:15 AM - Michael P.',
-                            colorScheme: colorScheme,
-                          ),
-                        ],
+                      const SizedBox(height: 4),
+                      Text(
+                        'Ready for your ride today?',
+                        style: textTheme.bodyLarge?.copyWith(
+                          color: colorScheme.onBackground.withOpacity(0.7),
+                        ),
                       ),
-                    ),
+                    ],
                   ),
+                  Chip(
+                    avatar: CircleAvatar(
+                      backgroundColor: Colors.amber.shade700, // Use a color for the plus
+                      child: const Icon(Icons.add, size: 16, color: Colors.white), // Replace with image if needed
+                    ),
+                    label: Text('Points', style: textTheme.labelMedium?.copyWith(color: colorScheme.onSurfaceVariant)),
+                    backgroundColor: colorScheme.surfaceVariant.withOpacity(0.5),
+                    side: BorderSide.none,
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 24),
+
+              // --- Illustration Placeholder --- 
+              Container(
+                height: 150,
+                decoration: BoxDecoration(
+                  color: colorScheme.surfaceVariant.withOpacity(0.3), // Placeholder color
+                  borderRadius: BorderRadius.circular(16),
+                  // TODO: Replace with actual Image asset
+                ),
+                child: const Center(child: Text('Illustration Placeholder', style: TextStyle(color: Colors.grey))), // Placeholder text
+              ),
+              const SizedBox(height: 32),
+
+              // --- Upcoming Ride Title --- 
+              Text(
+                'Upcoming Ride Details',
+                style: textTheme.titleLarge?.copyWith(
+                  fontWeight: FontWeight.w600,
+                  color: colorScheme.onBackground,
                 ),
               ),
-              // Add padding at the bottom to prevent content from hiding behind nav bar
-              SizedBox(height: kBottomNavigationBarHeight + 32), // Increased bottom padding slightly 
+              const SizedBox(height: 16),
+
+              // --- Ride Details Card --- 
+              _buildRideDetailsCard(context, colorScheme, textTheme, pickupLocation, dropLocation, pickupTime, dropTime),
+              const SizedBox(height: 24),
+
+              // --- Driver Details Card --- 
+              _buildDriverDetailsCard(context, colorScheme, textTheme, driverName, driverImageUrl, driverRating, otp, vehicleModel, vehicleNumber),
+              const SizedBox(height: 24),
+
+              // --- Contact Driver Section --- 
+              Row(
+                children: [
+                  Text(
+                    'Contact Driver :',
+                    style: textTheme.bodyMedium?.copyWith(color: colorScheme.onBackground.withOpacity(0.7)),
+                  ),
+                  const Spacer(),
+                  _buildContactButton(context, Icons.phone_outlined, colorScheme),
+                  const SizedBox(width: 12),
+                  _buildContactButton(context, Icons.message_outlined, colorScheme),
+                  const SizedBox(width: 12),
+                  ElevatedButton(
+                    onPressed: () {
+                      HapticFeedback.lightImpact();
+                      // TODO: Implement Cancel Ride action
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.redAccent.shade200,
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                    ),
+                    child: const Text('Cancel Ride'),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 32),
+
+              // --- Book New Ride Button --- 
+              Center(
+                child: ElevatedButton(
+                  onPressed: () {
+                    HapticFeedback.lightImpact();
+                    // TODO: Implement Book New Ride action
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: colorScheme.primaryContainer, // Light blue color from image
+                    foregroundColor: colorScheme.onPrimaryContainer,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+                    minimumSize: const Size(double.infinity, 50), // Full width, fixed height
+                  ),
+                  child: Text('Book New Ride', style: textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
+                ),
+              ),
+              SizedBox(height: kBottomNavigationBarHeight + 32), // Padding below button before nav bar
             ],
           ),
         ),
@@ -124,25 +162,159 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  // Helper method to build styled dummy ride list tiles
-  Widget _buildDummyRideTile(BuildContext context, {required IconData icon, required String title, required String subtitle, required ColorScheme colorScheme}) {
-    return ListTile(
-      leading: Icon(icon, color: colorScheme.primary, size: 28),
-      title: Text(
-        title,
-        style: TextStyle(
-          fontWeight: FontWeight.w600,
-          color: colorScheme.onSurface, // Ensure visibility
+  // --- Helper Widgets --- 
+
+  Widget _buildRideDetailsCard(BuildContext context, ColorScheme colorScheme, TextTheme textTheme, String pickup, String drop, String pickupTime, String dropTime) {
+    return Card(
+      elevation: 0, // No shadow
+      color: colorScheme.surfaceVariant.withOpacity(0.5), // Card background
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'Today',
+                  style: textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: colorScheme.onSurfaceVariant, 
+                  ),
+                ),
+                IconButton(
+                  icon: Icon(Icons.edit_outlined, color: colorScheme.primary, size: 20),
+                  onPressed: () {
+                    HapticFeedback.lightImpact();
+                    // TODO: Implement Edit action
+                  },
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints(),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            Row(
+              children: [
+                _buildLocationColumn(context, colorScheme, Icons.location_on, Icons.more_vert, pickup, pickupTime),
+                const SizedBox(width: 16),
+                _buildLocationColumn(context, colorScheme, Icons.location_on, null, drop, dropTime, isDrop: true),
+              ],
+            ),
+          ],
         ),
       ),
-      subtitle: Text(
-        subtitle,
-        style: TextStyle(
-          color: colorScheme.onSurface.withOpacity(0.7), // Slightly faded subtitle
-        ),
-      ),
-      // Optional: Add trailing info if needed
-      // trailing: Icon(Icons.chevron_right, color: colorScheme.onSurface.withOpacity(0.5)),
     );
   }
+
+  Widget _buildLocationColumn(BuildContext context, ColorScheme colorScheme, IconData startIcon, IconData? connectorIcon, String location, String time, {bool isDrop = false}) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Icon(startIcon, color: isDrop ? Colors.redAccent : colorScheme.primary, size: 20),
+            const SizedBox(width: 8),
+            Text(location, style: TextStyle(color: colorScheme.onSurfaceVariant)),
+          ],
+        ),
+        if (connectorIcon != null) 
+          Padding(
+            padding: const EdgeInsets.only(left: 8.0, top: 4, bottom: 4), // Adjust alignment
+            child: Icon(connectorIcon, color: colorScheme.onSurfaceVariant.withOpacity(0.5), size: 18), // Vertical dots
+          ),
+        if (connectorIcon == null) const SizedBox(height: 26), // Spacer for alignment if no connector
+        Row(
+          children: [
+            // Invisible icon for alignment unless it's the drop pin 
+            Icon(isDrop ? (startIcon) : null, color: isDrop ? Colors.transparent : Colors.transparent, size: 20),
+            const SizedBox(width: 8),
+            Icon(Icons.access_time, color: colorScheme.onSurfaceVariant.withOpacity(0.7), size: 16),
+            const SizedBox(width: 8),
+            Text(time, style: TextStyle(color: colorScheme.onSurfaceVariant.withOpacity(0.9))),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildDriverDetailsCard(BuildContext context, ColorScheme colorScheme, TextTheme textTheme, String name, String imageUrl, double rating, String otp, String vehicleModel, String vehicleNumber) {
+    return Card(
+      elevation: 0,
+      color: colorScheme.surfaceVariant.withOpacity(0.5),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Row(
+          children: [
+            // Left Side: Driver Info
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('Driver Details', style: textTheme.labelSmall?.copyWith(color: colorScheme.onSurfaceVariant.withOpacity(0.7))), // Implicit title
+                const SizedBox(height: 8),
+                Row(
+                  children: [
+                    CircleAvatar(
+                      radius: 24,
+                      backgroundColor: colorScheme.primaryContainer,
+                      // TODO: Replace backgroundImage with actual image
+                      // backgroundImage: NetworkImage(imageUrl), 
+                      child: Icon(Icons.person, color: colorScheme.onPrimaryContainer), // Placeholder
+                    ),
+                    const SizedBox(width: 12),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(name, style: textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold, color: colorScheme.onSurfaceVariant)),
+                        const SizedBox(height: 4),
+                        Row(
+                          children: List.generate(5, (index) => Icon(
+                            index < rating.floor() ? Icons.star : (index < rating ? Icons.star_half : Icons.star_border),
+                            color: Colors.amber,
+                            size: 18,
+                          )),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ],
+            ),
+            const Spacer(),
+            // Right Side: OTP & Vehicle
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Text(otp, style: textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold, color: colorScheme.onSurfaceVariant)),
+                const SizedBox(height: 4),
+                Text(vehicleModel, style: textTheme.bodyMedium?.copyWith(color: colorScheme.onSurfaceVariant)),
+                const SizedBox(height: 4),
+                Text(vehicleNumber, style: textTheme.bodyMedium?.copyWith(color: colorScheme.onSurfaceVariant)),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildContactButton(BuildContext context, IconData icon, ColorScheme colorScheme) {
+    return ElevatedButton(
+      onPressed: () { HapticFeedback.lightImpact(); },
+      style: ElevatedButton.styleFrom(
+        shape: const CircleBorder(),
+        padding: const EdgeInsets.all(10),
+        backgroundColor: colorScheme.surfaceVariant.withOpacity(0.5),
+        foregroundColor: colorScheme.onSurfaceVariant,
+        elevation: 0,
+      ),
+      child: Icon(icon, size: 20),
+    );
+  }
+
+  // Helper method to build styled dummy ride list tiles (No longer needed for this design)
+  /* Widget _buildDummyRideTile(...) { ... } */
 } 
