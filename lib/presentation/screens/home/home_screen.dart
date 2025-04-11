@@ -197,13 +197,22 @@ class HomeScreen extends StatelessWidget {
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
                   // Add subtle highlight overlay
                   foregroundColor: Colors.redAccent.shade100, 
-                  overlayColor: MaterialStateProperty.resolveWith<Color?>(
+                  // overlayColor: MaterialStateProperty.resolveWith<Color?>(
+                  //   (Set<MaterialState> states) {
+                  //     if (states.contains(MaterialState.pressed))
+                  //       return Colors.redAccent.withOpacity(0.12);
+                  //     return null; // Defer to the widget's default.
+                  //   },
+                  // ), << Incorrect application
+                ).copyWith( // Apply overlayColor using copyWith
+                   overlayColor: MaterialStateProperty.resolveWith<Color?>(
                     (Set<MaterialState> states) {
-                      if (states.contains(MaterialState.pressed))
+                      if (states.contains(MaterialState.pressed)) {
                         return Colors.redAccent.withOpacity(0.12);
-                      return null; // Defer to the widget's default.
+                      }
+                      return null; // Use the default overlay color otherwise
                     },
-                  ),
+                  ),                 
                 ),
               ),
             ),
@@ -273,7 +282,7 @@ class HomeScreen extends StatelessWidget {
         Row(
           children: [
             Icon(Icons.access_time, color: colorScheme.onSurfaceVariant.withOpacity(0.7), size: 16),
-            const SizedBox(width: 8),
+            const SizedBox(width: 6), // Reduced spacing to fix overflow
             // Wrap time in Flexible to prevent overflow even if time format changes
             Flexible(child: Text(time, style: TextStyle(color: colorScheme.onSurfaceVariant.withOpacity(0.9)), overflow: TextOverflow.ellipsis)),
           ],
