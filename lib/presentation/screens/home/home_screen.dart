@@ -8,6 +8,50 @@ class HomeScreen extends StatelessWidget {
   // Add const constructor for the StatelessWidget itself
   const HomeScreen({super.key});
 
+  final List<Map<String, dynamic>> upcomingRides = [
+      {
+        'userName': "Khushi",
+        'date': "Today", // Added date field
+        'pickupLocation': "Pickup: 123 Main St",
+        'dropLocation': "Drop: Central Park",
+        'pickupTime': "9:00 am", // Time only
+        'dropTime': "10:00 am", // Time only
+        'driverName': "Soham Thatte",
+        'driverImageUrl': "",
+        'driverRating': 4.5,
+        'otp': "OTP 1234",
+        'vehicleModel': "Omni Van",
+        'vehicleNumber': "KA 12 8091",
+      },
+      {
+        'userName': "Khushi",
+        'date': "Tomorrow", // Changed date
+        'pickupLocation': "Pickup: Tech Hub Tower",
+        'dropLocation': "Drop: Galaxy Diner",
+        'pickupTime': "2:00 PM", // Time only
+        'dropTime': "2:45 PM", // Time only
+        'driverName': "Onkar Yaglewad",
+        'driverImageUrl': "",
+        'driverRating': 5.0,
+        'otp': "OTP 8888",
+        'vehicleModel': "Flux Capacitor Express",
+        'vehicleNumber': "OUTATIME",
+      },
+      {
+        'userName': "Khushi",
+        'date': "Today", // Added date field
+        'pickupLocation': "Pickup: 123 Main St",
+        'dropLocation': "Drop: Central Park",
+        'pickupTime': "9:00 am", // Time only
+        'dropTime': "10:00 am", // Time only
+        'driverName': "Soham Thatte",
+        'driverImageUrl': "",
+        'driverRating': 4.5,
+        'otp': "OTP 1234",
+        'vehicleModel': "Omni Van",
+        'vehicleNumber': "KA 12 8091",
+      },
+    ];
   @override
   Widget build(BuildContext context) {
     // ... existing code ...
