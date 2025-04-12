@@ -1,12 +1,10 @@
-import 'dart:ui'; // Import for ImageFilter
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart'; // For HapticFeedback
 import 'package:via_commuter/presentation/widgets/bottom_navbar.dart'; // Adjust import path if needed
-import 'package:url_launcher/url_launcher.dart'; // Import url_launcher
 
 class HomeScreen extends StatelessWidget {
   // Add const constructor for the StatelessWidget itself
-  const HomeScreen({super.key});
+  const HomeScreen({Key? key}) : super(key: key);
 
   final List<Map<String, dynamic>> upcomingRides = [
       {
@@ -51,10 +49,94 @@ class HomeScreen extends StatelessWidget {
         'vehicleModel': "Omni Van",
         'vehicleNumber': "KA 12 8091",
       },
-    ];
+      {
+        'userName': "Khushi",
+        'date': "Tomorrow", // Changed date
+        'pickupLocation': "Pickup: Tech Hub Tower",
+        'dropLocation': "Drop: Galaxy Diner",
+        'pickupTime': "2:00 PM", // Time only
+        'dropTime': "2:45 PM", // Time only
+        'driverName': "Onkar Yaglewad",
+        'driverImageUrl': "",
+        'driverRating': 5.0,
+        'otp': "OTP 8888",
+        'vehicleModel': "Flux Capacitor Express",
+        'vehicleNumber': "OUTATIME",
+      },
+      {
+        'userName': "Khushi",
+        'date': "Today", // Added date field
+        'pickupLocation': "Pickup: 123 Main St",
+        'dropLocation': "Drop: Central Park",
+        'pickupTime': "9:00 am", // Time only
+        'dropTime': "10:00 am", // Time only
+        'driverName': "Soham Thatte",
+        'driverImageUrl': "",
+        'driverRating': 4.5,
+        'otp': "OTP 1234",
+        'vehicleModel': "Omni Van",
+        'vehicleNumber': "KA 12 8091",
+      },
+      {
+        'userName': "Khushi",
+        'date': "Tomorrow", // Changed date
+        'pickupLocation': "Pickup: Tech Hub Tower",
+        'dropLocation': "Drop: Galaxy Diner",
+        'pickupTime': "2:00 PM", // Time only
+        'dropTime': "2:45 PM", // Time only
+        'driverName': "Onkar Yaglewad",
+        'driverImageUrl': "",
+        'driverRating': 5.0,
+        'otp': "OTP 8888",
+        'vehicleModel': "Flux Capacitor Express",
+        'vehicleNumber': "OUTATIME",
+      },
+      {
+        'userName': "Khushi",
+        'date': "Today", // Added date field
+        'pickupLocation': "Pickup: 123 Main St",
+        'dropLocation': "Drop: Central Park",
+        'pickupTime': "9:00 am", // Time only
+        'dropTime': "10:00 am", // Time only
+        'driverName': "Soham Thatte",
+        'driverImageUrl': "",
+        'driverRating': 4.5,
+        'otp': "OTP 1234",
+        'vehicleModel': "Omni Van",
+        'vehicleNumber': "KA 12 8091",
+      },
+      {
+        'userName': "Khushi",
+        'date': "Tomorrow", // Changed date
+        'pickupLocation': "Pickup: Tech Hub Tower",
+        'dropLocation': "Drop: Galaxy Diner",
+        'pickupTime': "2:00 PM", // Time only
+        'dropTime': "2:45 PM", // Time only
+        'driverName': "Onkar Yaglewad",
+        'driverImageUrl': "",
+        'driverRating': 5.0,
+        'otp': "OTP 8888",
+        'vehicleModel': "Flux Capacitor Express",
+        'vehicleNumber': "OUTATIME",
+      },
+      {
+        'userName': "Khushi",
+        'date': "Today", // Added date field
+        'pickupLocation': "Pickup: 123 Main St",
+        'dropLocation': "Drop: Central Park",
+        'pickupTime': "9:00 am", // Time only
+        'dropTime': "10:00 am", // Time only
+        'driverName': "Soham Thatte",
+        'driverImageUrl': "",
+        'driverRating': 4.5,
+        'otp': "OTP 1234",
+        'vehicleModel': "Omni Van",
+        'vehicleNumber': "KA 12 8091",
+      },
+];
   @override
   Widget build(BuildContext context) {
-    // ... existing code ...
+    final theme = Theme.of(context);
               delegate: SliverChildListDelegate([
                 // Cannot be const due to MediaQuery
                 SizedBox(height: MediaQuery.of(context).padding.top + 24),
@@ -110,10 +192,7 @@ class HomeScreen extends StatelessWidget {
         onPressed: () {
           HapticFeedback.lightImpact();
           // TODO: Navigate to booking screen : Navigate to booking screen
-        },
-        label: const Text('Book New Ride'),
-        // Assuming style comes from theme, Text itself is const
-
+    
 
   Widget _buildTestBuildButton(BuildContext context, ColorScheme colorScheme) {
     return OutlinedButton.icon(
@@ -130,7 +209,7 @@ class HomeScreen extends StatelessWidget {
       bottomNavigationBar: const BottomNavBar(currentIndex: 0), // Already const
     );
   }
-
+        label: const Text('Book New Ride'),
   // --- Helper Widgets --- 
 
 
@@ -171,14 +250,12 @@ class HomeScreen extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Padding(
-            padding: const EdgeInsets.all(16.0),
             child: _buildRideDetailsSection(
                 context,
                 colorScheme,
                 textTheme,
                 rideData['date'],
-                rideData['pickup'],
+                rideData['pickupLocation'],
                 rideData['drop'],
                 rideData['pickupTime'],
                 rideData['dropTime']),
@@ -188,7 +265,7 @@ class HomeScreen extends StatelessWidget {
             padding: const EdgeInsets.all(16.0),
             child: _buildDriverDetailsSection(
                 context,
-                colorScheme,
+                 colorScheme,
                 textTheme,
                 rideData['driverName'],
                 rideData['driverImage'],
@@ -255,8 +332,8 @@ class HomeScreen extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              date,
-              style: textTheme.labelMedium
+               date,
+              style: textTheme.titleMedium
                   ?.copyWith(color: colorScheme.onSurfaceVariant),
             ),
             IconButton(
@@ -277,11 +354,11 @@ class HomeScreen extends StatelessWidget {
             children: [
               Expanded(
                   child: _buildLocationTimeColumn(context, colorScheme,
-                      Icons.location_on, pickup, pickupTime,
+                      Icons.location_on, pickup, pickupTime, 
                       isPickup: true)),
               const VerticalDivider(width: 32),
               Expanded(
-                  child: _buildLocationTimeColumn(context, colorScheme,
+                 child: _buildLocationTimeColumn(context, colorScheme,
                       Icons.location_on, drop, dropTime,
                       isDrop: true)),
             ],
@@ -312,11 +389,10 @@ class HomeScreen extends StatelessWidget {
             const SizedBox(width: 8),
             Flexible(
                 child: Text(location,
-                    style: TextStyle(color: colorScheme.onSurfaceVariant),
+                   style: TextStyle(color: colorScheme.onSurfaceVariant),
                     overflow: TextOverflow.ellipsis,
                     maxLines: 2)),
           ],
-        ),
         const Spacer(),
         const SizedBox(height: 12),
         Row(
@@ -332,7 +408,7 @@ class HomeScreen extends StatelessWidget {
                     overflow: TextOverflow.ellipsis)),
           ],
         ),
-      ],
+          ],
     );
   }
 
@@ -379,7 +455,7 @@ class HomeScreen extends StatelessWidget {
                         const SizedBox(height: 4),
                         _buildRatingStars(rating, colorScheme),
                          
-                        ),
+                         ),
                       ],
                     ),
                   ),
@@ -413,7 +489,7 @@ class HomeScreen extends StatelessWidget {
                       ?.copyWith(color: colorScheme.onSurfaceVariant)),
               const SizedBox(height: 4),
               Text(vehicleNumber,
-                  style: textTheme.bodyMedium
+                 style: textTheme.bodyMedium
                       ?.copyWith(color: colorScheme.onSurfaceVariant)),
             ],
           ),
@@ -458,20 +534,11 @@ class HomeScreen extends StatelessWidget {
   }
 
 
-
-
-
-
   // ... Add Confirmation Dialog (already exists) ...
 }
-  // Helper for Ride Details Section within the main card
-  Widget _buildRideDetailsSection(BuildContext context, ColorScheme colorScheme, TextTheme textTheme, String date, String pickup, String drop, String pickupTime, String dropTime) {
-    // ... inside _buildRideDetailsSection ...
-            ),
-            // Cannot be const due to onPressed and theme color
+
             IconButton(
-              icon: Icon(Icons.edit_outlined, color: colorScheme.primary, size: 20), 
-              onPressed: () { HapticFeedback.lightImpact(); /* TODO: Edit action */ },
+               icon: Icon(Icons.edit_outlined, color: colorScheme.primary, size: 20), 
               padding: EdgeInsets.zero, // EdgeInsets.zero is const
               constraints: const BoxConstraints(), // Can be const
             ),
@@ -495,13 +562,12 @@ class HomeScreen extends StatelessWidget {
   }
 
   // Simplified column for location/time display
-  Widget _buildLocationTimeColumn(BuildContext context, ColorScheme colorScheme, IconData icon, String location, String time, {bool isPickup = false, bool isDrop = false}) {
+ Widget _buildLocationTimeColumn(BuildContext context, ColorScheme colorScheme, IconData icon, String location, String time, {bool isPickup = false, bool isDrop = false}) {
      return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.start, 
       mainAxisAlignment: MainAxisAlignment.spaceBetween, // Space out elements vertically
-      children: [
+      children: [ 
         Row(
-          children: [
             // Cannot be const due to dynamic icon/color
             Icon(icon, color: isDrop ? Colors.redAccent : colorScheme.primary, size: 20),
             const SizedBox(width: 8), // Can be const
@@ -512,9 +578,9 @@ class HomeScreen extends StatelessWidget {
         // Add vertical space - adjust as needed
         const Spacer(), // Can be const
         const SizedBox(height: 12), // Can be const
-        Row(
-          children: [
-            // Icon can be const, color uses theme
+         Row(
+           children: [
+        // Icon can be const, color uses theme
             Icon(Icons.access_time, color: colorScheme.onSurfaceVariant.withOpacity(0.7), size: 16), 
             const SizedBox(width: 6), // Reduced spacing to fix overflow
             // Wrap time in Flexible to prevent overflow even if time format changes
@@ -526,8 +592,8 @@ class HomeScreen extends StatelessWidget {
   }
 
   // Helper for Driver Details Section within the main card (includes contact buttons)
-  Widget _buildDriverDetailsSection(BuildContext context, ColorScheme colorScheme, TextTheme textTheme, String name, String imageUrl, double rating, String otp, String vehicleModel, String vehicleNumber) {
-    // ... inside _buildDriverDetailsSection ...
+  Widget _buildDriverDetailsSection(BuildContext context, ColorScheme colorScheme, TextTheme textTheme, String name, String imageUrl, double rating, String otp, String vehicleModel, String vehicleNumber){
+    
             children: [
               Text('Driver Details', style: textTheme.labelSmall?.copyWith(color: colorScheme.onSurfaceVariant.withOpacity(0.7))), 
               const SizedBox(height: 8), // Can be const
