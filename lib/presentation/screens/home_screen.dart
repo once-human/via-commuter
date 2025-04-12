@@ -139,100 +139,91 @@ class HomeScreen extends StatelessWidget {
     );
 
     return Scaffold(
-      body: RepaintBoundary(
-        child: CustomScrollView(
-          physics: const ClampingScrollPhysics(
-            parent: AlwaysScrollableScrollPhysics(),
+      body: Column(
+        children: [
+          // Fixed Header Section
+          RepaintBoundary(
+            child: Container(
+              // Use background color from theme
+              color: theme.scaffoldBackgroundColor,
+              padding: EdgeInsets.only(
+                // Add status bar padding and horizontal padding
+                top: MediaQuery.of(context).padding.top,
+                left: 16.0,
+                right: 16.0,
+                bottom: 16.0, // Add some padding below the greeting
+              ),
+              child: _buildGreeting(context, colorScheme, textTheme, userName),
+            ),
           ),
-          cacheExtent: 1000,
-          slivers: [
-            SliverPersistentHeader(
-              floating: true,
-              delegate: _SliverAppBarDelegate(
-                minHeight: MediaQuery.of(context).padding.top + 24,
-                maxHeight: MediaQuery.of(context).padding.top + 24,
-                child: RepaintBoundary(
-                  child: Container(
-                    color: theme.scaffoldBackgroundColor,
-                    padding: EdgeInsets.only(
-                      top: MediaQuery.of(context).padding.top,
-                    ),
+          // Scrollable Content Section
+          Expanded(
+            child: RepaintBoundary(
+              child: CustomScrollView(
+                physics: const ClampingScrollPhysics(
+                  parent: AlwaysScrollableScrollPhysics(),
+                ),
+                cacheExtent: 1000,
+                slivers: [
+                  // Remove SliverPersistentHeader - padding handled above
+                  // Remove SliverToBoxAdapter for greeting - moved above
+
+                  // Spacing before "Upcoming Ride Details"
+                  const SliverToBoxAdapter(
+                    child: SizedBox(height: 8), // Reduced top spacing
                   ),
-                ),
-              ),
-            ),
-            SliverToBoxAdapter(
-              child: RepaintBoundary(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                  child: _buildGreeting(context, colorScheme, textTheme, userName),
-                ),
-              ),
-            ),
-            const SliverToBoxAdapter(
-              child: SizedBox(height: 24),
-            ),
-            if (hasUpcomingRides)
-              SliverToBoxAdapter(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                  child: Text(
-                    'Upcoming Ride Details',
-                    style: textTheme.titleLarge?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-              ),
-            if (hasUpcomingRides)
-              SliverPadding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                sliver: SliverList(
-                  delegate: SliverChildBuilderDelegate(
-                    (context, index) {
-                      final rideData = upcomingRides[index];
-                      return RepaintBoundary(
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 8.0),
-                          child: _buildUpcomingRideCard(
-                            context,
-                            colorScheme,
-                            textTheme,
-                            rideData,
+                  if (hasUpcomingRides)
+                    SliverToBoxAdapter(
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                        child: Text(
+                          'Upcoming Ride Details',
+                          style: textTheme.titleLarge?.copyWith(
+                            fontWeight: FontWeight.bold,
                           ),
                         ),
-                      );
-                    },
-                    childCount: upcomingRides.length,
+                      ),
+                    ),
+                  if (hasUpcomingRides)
+                    SliverPadding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                      sliver: SliverList(
+                        delegate: SliverChildBuilderDelegate(
+                          (context, index) {
+                            final rideData = upcomingRides[index];
+                            return RepaintBoundary(
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(vertical: 8.0),
+                                child: _buildUpcomingRideCard(
+                                  context,
+                                  colorScheme,
+                                  textTheme,
+                                  rideData,
+                                ),
+                              ),
+                            );
+                          },
+                          childCount: upcomingRides.length,
+                        ),
+                      ),
+                    ),
+                  SliverFillRemaining(
+                    hasScrollBody: false,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        const SizedBox(height: 24),
+                        const SizedBox(height: 80),
+                      ],
+                    ),
                   ),
-                ),
-              ),
-            SliverFillRemaining(
-              hasScrollBody: false,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  const SizedBox(height: 24),
-                  const SizedBox(height: 80),
                 ],
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {
-          HapticFeedback.lightImpact();
-          // TODO: Navigate to booking screen
-        },
-        label: const Text('Book New Ride'),
-        icon: const Icon(Icons.add),
-        backgroundColor: colorScheme.primaryContainer,
-        foregroundColor: colorScheme.onPrimaryContainer,
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-      bottomNavigationBar: const BottomNavBar(currentIndex: 0),
     );
   }
 
@@ -381,35 +372,5 @@ class HomeScreen extends StatelessWidget {
         ),
       ),
     );
-  }
-}
-
-class _SliverAppBarDelegate extends SliverPersistentHeaderDelegate {
-  _SliverAppBarDelegate({
-    required this.minHeight,
-    required this.maxHeight,
-    required this.child,
-  });
-
-  final double minHeight;
-  final double maxHeight;
-  final Widget child;
-
-  @override
-  double get minExtent => minHeight;
-
-  @override
-  double get maxExtent => maxHeight;
-
-  @override
-  Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) {
-    return SizedBox.expand(child: child);
-  }
-
-  @override
-  bool shouldRebuild(_SliverAppBarDelegate oldDelegate) {
-    return maxHeight != oldDelegate.maxHeight ||
-        minHeight != oldDelegate.minHeight ||
-        child != oldDelegate.child;
   }
 }

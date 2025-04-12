@@ -1,15 +1,22 @@
 // lib/presentation/widgets/bottom_navbar.dart
 import 'dart:ui'; // Import for ImageFilter
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
+// Remove go_router import if no longer needed here
+// import 'package:go_router/go_router.dart';
 
 /// A custom bottom navigation bar with a blurred, gradient background effect.
 class BottomNavBar extends StatelessWidget {
   final int currentIndex;
+  final ValueChanged<int> onTap; // Add onTap callback parameter
 
-  const BottomNavBar({super.key, required this.currentIndex});
+  const BottomNavBar({
+    super.key,
+    required this.currentIndex,
+    required this.onTap, // Make onTap required
+  });
 
-  // Navigation logic using GoRouter
+  // Remove internal navigation logic - handled by MainScreen
+  /*
   void _onTap(BuildContext context, int index) {
     final currentLocation = GoRouterState.of(context).uri.toString();
     switch (index) {
@@ -17,21 +24,19 @@ class BottomNavBar extends StatelessWidget {
         if (currentLocation != '/home') context.go('/home');
         break;
       case 1: // Activity
-        // Replace with actual navigation when ready
         if (currentLocation != '/activity') print("Navigate to Activity (Route not implemented yet)");
         break;
       case 2: // Driver Profiles
-        // Replace with actual navigation when ready
         if (currentLocation != '/driver-profiles') print("Navigate to Driver Profiles (Route not implemented yet)");
         break;
       case 3: // Profile
-        // Replace with actual navigation when ready
         if (currentLocation != '/profile') print("Navigate to Profile (Route not implemented yet)");
         break;
       default:
         break;
     }
   }
+  */
 
   @override
   Widget build(BuildContext context) {
@@ -92,7 +97,8 @@ class BottomNavBar extends StatelessWidget {
 
           return Expanded(
             child: InkWell( // Use InkWell for tap feedback
-              onTap: () => _onTap(context, index),
+              // Call the provided onTap callback
+              onTap: () => onTap(index),
               // Make splash/highlight transparent for a cleaner look
               splashColor: Colors.transparent,
               highlightColor: Colors.transparent,
