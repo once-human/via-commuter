@@ -101,43 +101,310 @@ class HomeScreen extends StatelessWidget {
   }
 
   // New Main Card Widget for a Single Ride
-  Widget _buildUpcomingRideCard(BuildContext context, ColorScheme colorScheme, TextTheme textTheme, Map<String, dynamic> rideData) {
-    return Card(
-      elevation: 0,
-      color: colorScheme.surfaceVariant.withOpacity(0.5), // Main card background
-      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)), // Can be const
+  Widget _buildUpcomingRideCard(BuildContext context, ColorScheme colorScheme,
+      TextTheme textTheme, Map<String, dynamic> rideData) {
+    return Container(
+      margin: const EdgeInsets.symmetric(vertical: 8.0),
+      decoration: BoxDecoration(
+        color: colorScheme.surfaceVariant.withOpacity(0.5),
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: _buildRideDetailsSection(
+                context,
+                colorScheme,
+                textTheme,
+                rideData['date'],
+                rideData['pickup'],
+                rideData['drop'],
+                rideData['pickupTime'],
+                rideData['dropTime']),
+          ),
+          const Divider(height: 1, indent: 16, endIndent: 16),
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: _buildDriverDetailsSection(
+                context,
+                colorScheme,
+                textTheme,
+                rideData['driverName'],
+                rideData['driverImage'],
+                rideData['driverRating'],
+                rideData['otp'],
+                rideData['vehicleModel'],
+                rideData['vehicleNumber']),
+          ),
+          _buildCancelButton(context),
+        ],
+      ),
+    );
+  }
+  Widget _buildCancelButton(BuildContext context) {
+    return Center(
       child: Padding(
-        padding: const EdgeInsets.all(16.0), // Can be const
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        padding: const EdgeInsets.only(bottom: 16.0),
+        child: TextButton.icon(
+          onPressed: () {
+            HapticFeedback.lightImpact();
+            _showCancelConfirmationDialog(context);
+          },
+          icon: const Icon(Icons.cancel_outlined,
+              color: Colors.redAccent, size: 18),
+          label: const Text('Cancel Ride',
+              style: TextStyle(color: Colors.redAccent)),
+          style: TextButton.styleFrom(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+            foregroundColor: Colors.redAccent,
+          ).copyWith(
+            overlayColor: MaterialStateProperty.resolveWith<Color?>(
+              (Set<MaterialState> states) {
+                if (states.contains(MaterialState.hovered)) {
+                  return Colors.redAccent.withOpacity(0.04);
+                }
+                if (states.contains(MaterialState.focused) ||
+                    states.contains(MaterialState.pressed)) {
+                  return Colors.redAccent.withOpacity(0.12);
+                }
+                return null;
+              },
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  // Helper for Ride Details Section within the main card
+  Widget _buildRideDetailsSection(
+      BuildContext context,
+      ColorScheme colorScheme,
+      TextTheme textTheme,
+      String date,
+      String pickup,
+      String drop,
+      String pickupTime,
+      String dropTime) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            // ... inside _buildUpcomingRideCard ...
-              rideData['pickupTime'], rideData['dropTime']
+            Text(
+              date,
+              style: textTheme.labelMedium
+                  ?.copyWith(color: colorScheme.onSurfaceVariant),
             ),
-            const Divider(height: 32), // Can be const
-            
-            // Section 2: Driver Details + Actions
-            _buildDriverDetailsSection(context, colorScheme, textTheme, 
-            // ... inside _buildUpcomingRideCard ...
-              rideData['vehicleModel'], rideData['vehicleNumber']
+            IconButton(
+              icon: Icon(Icons.edit_outlined,
+                  color: colorScheme.primary, size: 20),
+              onPressed: () {
+                HapticFeedback.lightImpact();
+                /* TODO: Edit action */
+              },
+              padding: EdgeInsets.zero,
+              constraints: const BoxConstraints(),
             ),
-            const SizedBox(height: 16), // Can be const
+          ],
+        ),
+        const SizedBox(height: 16),
+        IntrinsicHeight(
+          child: Row(
+            children: [
+              Expanded(
+                  child: _buildLocationTimeColumn(context, colorScheme,
+                      Icons.location_on, pickup, pickupTime,
+                      isPickup: true)),
+              const VerticalDivider(width: 32),
+              Expanded(
+                  child: _buildLocationTimeColumn(context, colorScheme,
+                      Icons.location_on, drop, dropTime,
+                      isDrop: true)),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
 
-            // Section 3: Cancel Button
-            Center(
-              // ... inside _buildUpcomingRideCard ...
-                  _showCancelConfirmationDialog(context);
-                },
-                icon: const Icon(Icons.cancel_outlined, color: Colors.redAccent.shade100, size: 18), // Icon can be const, color is hardcoded
-                label: const Text('Cancel Ride', style: TextStyle(color: Colors.redAccent.shade100)), // Text+Style can be const (color is hardcoded)
-                style: TextButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8), // Can be const
-                  shape: const RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)), // Can be const
-                  // Add subtle highlight overlay
-                  foregroundColor: Colors.redAccent.shade100, 
-                ).copyWith( // Apply overlayColor using copyWith
-                // ... existing code ...
+  // Simplified column for location/time display
+  Widget _buildLocationTimeColumn(
+      BuildContext context,
+      ColorScheme colorScheme,
+      IconData icon,
+      String location,
+      String time,
+      {bool isPickup = false,
+      bool isDrop = false}) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Row(
+          children: [
+            Icon(icon,
+                color: isDrop ? Colors.redAccent : colorScheme.primary,
+                size: 20),
+            const SizedBox(width: 8),
+            Flexible(
+                child: Text(location,
+                    style: TextStyle(color: colorScheme.onSurfaceVariant),
+                    overflow: TextOverflow.ellipsis,
+                    maxLines: 2)),
+          ],
+        ),
+        const Spacer(),
+        const SizedBox(height: 12),
+        Row(
+          children: [
+            Icon(Icons.access_time,
+                color: colorScheme.onSurfaceVariant.withOpacity(0.7),
+                size: 16),
+            const SizedBox(width: 6),
+            Flexible(
+                child: Text(time,
+                    style: TextStyle(
+                        color: colorScheme.onSurfaceVariant.withOpacity(0.9)),
+                    overflow: TextOverflow.ellipsis)),
+          ],
+        ),
+      ],
+    );
+  }
 
+  // Helper for Driver Details Section within the main card (includes contact buttons)
+  Widget _buildDriverDetailsSection(
+      BuildContext context,
+      ColorScheme colorScheme,
+      TextTheme textTheme,
+      String name,
+      String imageUrl,
+      double rating,
+      String otp,
+      String vehicleModel,
+      String vehicleNumber) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('Driver Details',
+                  style: textTheme.labelSmall?.copyWith(
+                      color: colorScheme.onSurfaceVariant.withOpacity(0.7))),
+              const SizedBox(height: 8),
+              Row(
+                children: [
+                  CircleAvatar(
+                    radius: 24,
+                    backgroundColor: colorScheme.primaryContainer,
+                    child: Icon(Icons.person,
+                        color: colorScheme.onPrimaryContainer),
+                  ),
+                  const SizedBox(width: 12),
+                  Flexible(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(name,
+                            style: textTheme.titleMedium?.copyWith(
+                                fontWeight: FontWeight.bold,
+                                color: colorScheme.onSurfaceVariant),
+                            overflow: TextOverflow.ellipsis),
+                        const SizedBox(height: 4),
+                        _buildRatingStars(rating, colorScheme),
+                         
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              Row(
+                children: [
+                  _buildContactButton(
+                      context, Icons.phone_outlined, colorScheme),
+                  const SizedBox(width: 12),
+                  _buildContactButton(
+                      context, Icons.message_outlined, colorScheme),
+                ],
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(width: 16),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Text(otp,
+                  style: textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.bold,
+                      color: colorScheme.onSurfaceVariant)),
+              const SizedBox(height: 4),
+              Text(vehicleModel,
+                  style: textTheme.bodyMedium
+                      ?.copyWith(color: colorScheme.onSurfaceVariant)),
+              const SizedBox(height: 4),
+              Text(vehicleNumber,
+                  style: textTheme.bodyMedium
+                      ?.copyWith(color: colorScheme.onSurfaceVariant)),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  // Unchanged Contact Button Helper
+  Widget _buildContactButton(
+      BuildContext context, IconData icon, ColorScheme colorScheme) {
+    return ElevatedButton(
+      onPressed: () {
+        HapticFeedback.lightImpact();
+      },
+      style: ElevatedButton.styleFrom(
+        shape: const CircleBorder(),
+        padding: const EdgeInsets.all(10),
+        backgroundColor: colorScheme.surfaceVariant.withOpacity(0.5),
+        foregroundColor: colorScheme.onSurfaceVariant,
+        elevation: 0,
+      ),
+      child: Icon(icon, size: 20),
+    );
+  }
+
+    Widget _buildRatingStars(double rating, ColorScheme colorScheme) {
+    // Pre-generate the list of star widgets for efficiency
+    List<Widget> stars = [];
+    for (int i = 0; i < 5; i++) {
+      IconData icon;
+      if (i < rating.floor()) {
+        icon = Icons.star;
+      } else if (i < rating) {
+        icon = Icons.star_half;
+      } else {
+        icon = Icons.star_border;
+      }
+      stars.add(Icon(icon, color: Colors.amber, size: 18));
+    }
+    return Row(children: stars);
+  }
+
+
+
+
+
+
+  // ... Add Confirmation Dialog (already exists) ...
+}
   // Helper for Ride Details Section within the main card
   Widget _buildRideDetailsSection(BuildContext context, ColorScheme colorScheme, TextTheme textTheme, String date, String pickup, String drop, String pickupTime, String dropTime) {
     // ... inside _buildRideDetailsSection ...
