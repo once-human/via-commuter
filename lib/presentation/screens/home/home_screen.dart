@@ -13,46 +13,48 @@ class HomeScreen extends StatelessWidget {
     // ... existing code ...
               delegate: SliverChildListDelegate([
                 // Cannot be const due to MediaQuery
-                SizedBox(height: MediaQuery.of(context).padding.top + 24), 
-                
-                // --- Greeting and Points --- 
-                _buildGreeting(context, colorScheme, textTheme, userName), // Cannot be const (needs context/theme)
-                const SizedBox(height: 24), // Can be const
+                SizedBox(height: MediaQuery.of(context).padding.top + 24),
 
-                // --- Upcoming Ride Section Title --- 
+                // --- Greeting and Points ---
+                _buildGreeting(context, colorScheme, textTheme,
+                    userName), // Cannot be const (needs context/theme)
+                const SizedBox(height: 24),
+
+                // --- Upcoming Ride Section Title ---
                 if (hasUpcomingRides)
                   Padding(
-                    padding: const EdgeInsets.only(bottom: 16.0), // Can be const
+                    padding: const EdgeInsets.only(bottom: 16.0),
                     child: Text(
                       'Upcoming Ride Details',
                       style: textTheme.titleLarge?.copyWith(
-                        // ... existing code ...
-                  return Padding(
-                    // Add padding below each card except the last?
-                    // For now, add padding below all cards
-                    padding: const EdgeInsets.only(bottom: 16.0), // Can be const
-                    child: _buildUpcomingRideCard(context, colorScheme, textTheme, rideData),
-                  );
-                }).toList(),
-                
-                // --- Add Test Builds Button --- 
-                const SizedBox(height: 24), // Can be const
-                Center(
-                  child: OutlinedButton.icon(
-                    icon: const Icon(Icons.science_outlined, size: 18), // Can be const
-                    label: const Text('View Test Builds'), // Can be const
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: colorScheme.secondary, // Use secondary color
-                      side: BorderSide(color: colorScheme.secondary.withOpacity(0.5)),
-                    // ... existing code ...
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                   ),
+              ]),
+            ),
+            // --- Upcoming Rides List ---
+            if (hasUpcomingRides)
+              SliverList.builder(
+                itemCount: upcomingRides.length,
+                itemBuilder: (context, index) {
+                  final rideData = upcomingRides[index];
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: 16.0),
+                    child: _buildUpcomingRideCard(
+                        context, colorScheme, textTheme, rideData),
+                  );
+                },
+              ),
+            SliverList(
+              delegate: SliverChildListDelegate([
+                // --- Add Test Builds Button ---
+                const SizedBox(height: 24),
+                Center(
+                  child: _buildTestBuildButton(context, colorScheme),
                 ),
-                const SizedBox(height: 16), // Can be const
-
-                // Add significant padding at the bottom if using FAB
-                // Keep existing padding below
-                // Cannot be const due to kBottomNavigationBarHeight (might not be compile-time const)
-                SizedBox(height: 80 + kBottomNavigationBarHeight), 
+                const SizedBox(height: 16),
+                SizedBox(height: 80 + kBottomNavigationBarHeight),
               ]),
             ),
           ),
@@ -63,9 +65,20 @@ class HomeScreen extends StatelessWidget {
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () {
           HapticFeedback.lightImpact();
-          // TODO: Navigate to booking screen
+          // TODO: Navigate to booking screen : Navigate to booking screen
         },
-        label: const Text('Book New Ride'), // Assuming style comes from theme, Text itself is const
+        label: const Text('Book New Ride'),
+        // Assuming style comes from theme, Text itself is const
+
+
+  Widget _buildTestBuildButton(BuildContext context, ColorScheme colorScheme) {
+    return OutlinedButton.icon(
+        icon: const Icon(Icons.science_outlined, size: 18),
+        label: const Text('View Test Builds'),
+        style: OutlinedButton.styleFrom(
+          foregroundColor: colorScheme.secondary,
+          side: BorderSide(color: colorScheme.secondary.withOpacity(0.5)),
+        ),
         icon: const Icon(Icons.add), // Can be const
         backgroundColor: colorScheme.primaryContainer,
         foregroundColor: colorScheme.onPrimaryContainer,
@@ -76,8 +89,10 @@ class HomeScreen extends StatelessWidget {
 
   // --- Helper Widgets --- 
 
-  // Note: Helper methods themselves cannot be const, but widgets returned CAN be.
 
+        onPressed: () {
+          HapticFeedback.lightImpact();
+          // TODO: Implement test builds action
   Widget _buildGreeting(BuildContext context, ColorScheme colorScheme, TextTheme textTheme, String userName) {
     // ... inside _buildGreeting ...
             ),
