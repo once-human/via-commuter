@@ -20,8 +20,23 @@ class ProfileScreen extends StatelessWidget {
           ),
         ],
       ),
-      body: const Center(
-        child: Text('Profile Screen'),
+      body: Center(
+        // Wrap content in a Column to add the button
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center, // Center vertically
+          children: [
+            const Text('Profile Screen'), // Keep existing content
+            const SizedBox(height: 32), // Add spacing
+            ElevatedButton.icon(
+              icon: const Icon(Icons.replay_outlined),
+              label: const Text('Revisit Onboarding'),
+              onPressed: () {
+                // Navigate back to the onboarding screen
+                context.go('/onboarding'); // Assuming '/onboarding' is your route
+              },
+            ),
+          ],
+        ),
       ),
     );
   }
