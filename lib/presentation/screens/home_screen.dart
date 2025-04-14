@@ -341,6 +341,8 @@ class HomeScreen extends StatelessWidget {
         // Use ActionChip to make it tappable
         ActionChip(
           onPressed: () {
+            // Add haptic feedback
+            HapticFeedback.lightImpact();
             // TODO: Implement navigation to Points screen
             print('Points chip pressed');
           },
@@ -433,6 +435,8 @@ class HomeScreen extends StatelessWidget {
           icon: const Icon(Icons.directions_car_filled, size: 18), // Changed icon
           label: const Text('Book Ride'),
           onPressed: () {
+            // Add haptic feedback
+            HapticFeedback.lightImpact();
             // TODO: Implement ride booking navigation
             print('Book ride from header pressed');
           },
@@ -457,6 +461,8 @@ class HomeScreen extends StatelessWidget {
         type: MaterialType.transparency, // Avoid double background
         child: InkWell(
           onTap: () {
+            // Strong haptic for card expansion
+            HapticFeedback.heavyImpact(); 
             Navigator.push(
               context,
               // Use MaterialPageRoute for standard transition
@@ -666,6 +672,8 @@ class HomeScreen extends StatelessWidget {
                                   icon: const Icon(Icons.message_outlined, size: 18),
                                   label: const Text('Message'),
                                   onPressed: () {
+                                    // Light haptic for message button
+                                    HapticFeedback.lightImpact();
                                     // TODO: Implement message functionality
                                     print('Message button pressed for ${rideData['driverName']}');
                                   },
@@ -680,6 +688,8 @@ class HomeScreen extends StatelessWidget {
                                   icon: const Icon(Icons.call_outlined, size: 18),
                                   label: const Text('Call'),
                                   onPressed: () {
+                                    // Light haptic for call button
+                                    HapticFeedback.lightImpact();
                                     // TODO: Implement call functionality
                                     print('Call button pressed for ${rideData['driverName']}');
                                   },
@@ -695,8 +705,10 @@ class HomeScreen extends StatelessWidget {
                                 tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                               ),
                               icon: const Icon(Icons.info_outline, size: 18),
-                              label: const Text('Driver Info'),
+                              label: const Text('Info'),
                               onPressed: () {
+                                // Light haptic for info button
+                                HapticFeedback.lightImpact();
                                 // TODO: Implement driver info/reviews navigation
                                 print('Info button pressed for ${rideData['driverName']}');
                               },
@@ -718,6 +730,8 @@ class HomeScreen extends StatelessWidget {
                     constraints: const BoxConstraints(),
                     tooltip: 'Edit Ride',
                     onPressed: () {
+                      // Light haptic for edit button
+                      HapticFeedback.lightImpact();
                       // TODO: Implement edit ride functionality
                       print('Edit button pressed for ${rideData['date']}');
                     },
