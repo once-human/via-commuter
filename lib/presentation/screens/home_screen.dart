@@ -181,7 +181,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         if (mounted) _pointsTapController.reverse();
     });
      // Original tap logic
-     HapticFeedback.lightImpact();
+     // Use medium impact for header buttons
+     HapticFeedback.mediumImpact();
      print('Points chip pressed');
      // TODO: Implement navigation
   }
@@ -199,7 +200,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       if (mounted) _bookRideTapController.reverse();
     });
     // Original tap logic
-    HapticFeedback.lightImpact();
+    // Use medium impact for header buttons
+    HapticFeedback.mediumImpact();
     print('Book ride from header pressed');
     // TODO: Implement navigation
   }
@@ -921,7 +923,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-                      const SizedBox(width: 4), // Space before arrow
+                      const SizedBox(width: 4), // CONST
+                      // Remove const from Icon as color uses theme
                       Icon(
                         Icons.arrow_forward_ios, // Simple arrow icon
                         size: 12, // Small icon size
