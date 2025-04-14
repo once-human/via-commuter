@@ -131,7 +131,7 @@ class HomeScreen extends StatelessWidget {
     const userName = "Khushi";
     // Placeholder subscription data
     const subscriptionPlan = "Premium Plan";
-    const subscriptionDetails = "Active until Dec 2024"; 
+    const subscriptionDetails = "Active until Sept 2025"; 
 
     // Enable high refresh rate
     SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
@@ -177,15 +177,14 @@ class HomeScreen extends StatelessWidget {
                 ),
                 cacheExtent: 1000,
                 slivers: [
-                  // --- Add Search Bar ---
-                  SliverToBoxAdapter(
-                    child: Padding(
-                      padding: const EdgeInsets.fromLTRB(16.0, 8.0, 16.0, 16.0), // Add padding around search bar
-                      child: _buildSearchBar(context, colorScheme, textTheme),
-                    ),
-                  ),
-                  // --- End Search Bar ---
-
+                  // --- Remove Search Bar ---
+                  // SliverToBoxAdapter(
+                  //   child: Padding(
+                  //     padding: const EdgeInsets.fromLTRB(16.0, 8.0, 16.0, 16.0), 
+                  //     child: _buildSearchBar(context, colorScheme, textTheme),
+                  //   ),
+                  // ),
+                  
                   // --- Conditional Content: Upcoming Rides or Empty State ---
                   if (hasUpcomingRides) ...[
                     // Spacing before "Upcoming Ride Details"
@@ -267,6 +266,11 @@ class HomeScreen extends StatelessWidget {
                     ),
                   ],
                   // --- End Conditional Content ---
+
+                  // Re-add padding at the end of the scroll view for NavBar
+                  SliverToBoxAdapter(
+                    child: SizedBox(height: MediaQuery.of(context).padding.bottom + 90.0), // Increased padding slightly
+                  ),
                 ],
               ),
             ),
@@ -277,6 +281,9 @@ class HomeScreen extends StatelessWidget {
   }
 
   Widget _buildGreeting(BuildContext context, ColorScheme colorScheme, TextTheme textTheme, String userName) {
+    // Placeholder points data
+    const pointsValue = 2000;
+
     return Row(
       children: [
         Expanded(
@@ -310,10 +317,24 @@ class HomeScreen extends StatelessWidget {
             backgroundColor: Colors.amber.shade700,
             child: const Icon(Icons.star, size: 16, color: Colors.white),
           ),
-          label: Text(
-            'Points',
-            style: textTheme.labelMedium?.copyWith(
-              color: colorScheme.onSurfaceVariant,
+          // Update label to show points value
+          label: RichText(
+            text: TextSpan(
+              children: [
+                TextSpan(
+                  text: '$pointsValue ', // Add space after number
+                  style: textTheme.labelMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: colorScheme.onSurface, // White/Black for number
+                  ),
+                ),
+                TextSpan(
+                  text: 'Points',
+                  style: textTheme.labelMedium?.copyWith(
+                    color: colorScheme.onSurfaceVariant, // Greyish for text
+                  ),
+                ),
+              ],
             ),
           ),
           backgroundColor: colorScheme.surfaceVariant.withOpacity(0.5),
@@ -332,60 +353,57 @@ class HomeScreen extends StatelessWidget {
     String details,
   ) {
     return Row(
+      crossAxisAlignment: CrossAxisAlignment.center, // Align items vertically
       children: [
-        Icon(
-          Icons.workspace_premium_outlined, // Or another relevant icon
-          color: colorScheme.primary,
-          size: 18,
-        ),
-        const SizedBox(width: 8),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        // Keep icon and text together
+        Row(
+          mainAxisSize: MainAxisSize.min,
           children: [
-            Text(
-              plan,
-              style: textTheme.labelLarge?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
+             Icon(
+              Icons.workspace_premium_outlined, // Or another relevant icon
+              color: colorScheme.primary,
+              size: 18,
             ),
-            Text(
-              details,
-              style: textTheme.labelMedium?.copyWith(
-                color: colorScheme.onSurfaceVariant,
-              ),
+            const SizedBox(width: 8),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  plan,
+                  style: textTheme.labelLarge?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                Text(
+                  details,
+                  style: textTheme.labelMedium?.copyWith(
+                    color: colorScheme.onSurfaceVariant,
+                  ),
+                ),
+              ],
             ),
           ],
         ),
+        const Spacer(), // Pushes the button to the right
+        // Change to ElevatedButton for more prominence
+        ElevatedButton.icon(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: colorScheme.primary, // Ensure primary color background
+            foregroundColor: colorScheme.onPrimary, // Ensure good text contrast
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10), // Slightly adjusted padding
+            textStyle: textTheme.labelLarge, // Make text slightly bolder/larger
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12.0), // Standard rounded corners
+            ),
+          ),
+          icon: const Icon(Icons.directions_car_filled, size: 18), // Changed icon
+          label: const Text('Book Ride'),
+          onPressed: () {
+            // TODO: Implement ride booking navigation
+            print('Book ride from header pressed');
+          },
+        ),
       ],
-    );
-  }
-
-  Widget _buildSearchBar(BuildContext context, ColorScheme colorScheme, TextTheme textTheme) {
-    return TextField(
-      readOnly: true, // Make it non-editable for now, just UI
-      onTap: () {
-        // TODO: Implement navigation to search/booking screen
-        print("Search bar tapped");
-      },
-      decoration: InputDecoration(
-        hintText: 'Where to?',
-        prefixIcon: const Icon(Icons.search),
-        filled: true,
-        fillColor: colorScheme.surfaceVariant.withOpacity(0.5),
-        contentPadding: EdgeInsets.zero, // Remove default padding
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(30.0), // Make it pill-shaped
-          borderSide: BorderSide.none, // No border
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(30.0),
-          borderSide: BorderSide.none,
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(30.0),
-          borderSide: BorderSide(color: colorScheme.primary, width: 1.0), // Highlight on focus
-        ),
-      ),
     );
   }
 
@@ -398,28 +416,52 @@ class HomeScreen extends StatelessWidget {
     return Card(
       elevation: 2,
       margin: EdgeInsets.zero,
-      // Adjust card color for gradient blending
+      // Restore semi-transparent background
       color: colorScheme.surfaceVariant.withOpacity(0.3),
-      clipBehavior: Clip.antiAlias, // Ensure gradient is clipped to card shape
-      child: Stack( // Use Stack to layer gradient behind content
+      clipBehavior: Clip.antiAlias, // Restore clip behavior
+      child: Stack( // Re-add Stack for gradients
         children: [
-          // Simplified, Single Subtle Gradient Layer (No Blur)
+          // Extremely Subtle Gradient Layers (No Blur)
           Positioned.fill(
             child: Container(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  // Very faint gradient
-                  colors: [
-                    colorScheme.primary.withOpacity(0.03), // Extremely subtle start color
-                    colorScheme.surfaceVariant.withOpacity(0.3), // Card base color
-                  ],
-                  stops: [
-                    0.0, // Start color at the very beginning
-                    0.4, // Fade completely to base color by 40% of the gradient
-                  ],
-                  begin: Alignment.topRight, // Start corner
-                  end: Alignment.bottomLeft, // End corner (defines direction)
-                ),
+              // Container holds the Stack for multiple gradients
+              child: Stack(
+                children: [
+                  // Gradient 1 (Top-Right, Minimal Intensity)
+                  Container(
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [
+                          colorScheme.primary.withOpacity(0.004), // Extremely faint
+                          colorScheme.surfaceVariant.withOpacity(0.3), // Card base color
+                        ],
+                        stops: [
+                          0.0, 
+                          0.7, 
+                        ],
+                        begin: Alignment.topRight,
+                        end: Alignment.bottomLeft,
+                      ),
+                    ),
+                  ),
+                  // Gradient 2 (Bottom-Left, Minimal Intensity)
+                  Container(
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [
+                          colorScheme.primary.withOpacity(0.002), // Extremely faint
+                          colorScheme.surfaceVariant.withOpacity(0.3), // Card base color
+                        ],
+                        stops: [
+                          0.0, 
+                          0.7, 
+                        ],
+                        begin: Alignment.bottomLeft,
+                        end: Alignment.topRight,
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
           ),
@@ -430,9 +472,12 @@ class HomeScreen extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                // Restore simple Row for Date/Time
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.start, // Align top
                   children: [
+                    // Date
                     Text(
                       rideData['date'] as String,
                       style: textTheme.titleMedium?.copyWith(
@@ -440,6 +485,7 @@ class HomeScreen extends StatelessWidget {
                         color: colorScheme.primary,
                       ),
                     ),
+                    // Time only
                     Text(
                       '${rideData['pickupTime']} - ${rideData['dropTime']}',
                       style: textTheme.bodyMedium,
@@ -541,41 +587,76 @@ class HomeScreen extends StatelessWidget {
                 if (rideData['date'] == 'Today' || rideData['date'] == 'Tomorrow') ...[
                   const SizedBox(height: 16),
                   Row(
-                    mainAxisAlignment: MainAxisAlignment.start, // Align buttons to the start
+                    // Restructure to push Info button to the right
                     children: [
-                      TextButton.icon(
-                        style: TextButton.styleFrom(
-                          // Change color to onSurfaceVariant (greyish)
-                          foregroundColor: colorScheme.onSurfaceVariant,
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                        ),
-                        icon: const Icon(Icons.message_outlined, size: 18),
-                        label: const Text('Message'),
-                        onPressed: () {
-                          // TODO: Implement message functionality
-                          print('Message button pressed for ${rideData['driverName']}');
-                        },
+                      // Group Message and Call together
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          TextButton.icon(
+                            style: TextButton.styleFrom(
+                              foregroundColor: colorScheme.onSurfaceVariant,
+                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                            ),
+                            icon: const Icon(Icons.message_outlined, size: 18),
+                            label: const Text('Message'),
+                            onPressed: () {
+                              // TODO: Implement message functionality
+                              print('Message button pressed for ${rideData['driverName']}');
+                            },
+                          ),
+                          const SizedBox(width: 16), // Spacing between buttons
+                          TextButton.icon(
+                            style: TextButton.styleFrom(
+                              foregroundColor: colorScheme.onSurfaceVariant,
+                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                            ),
+                            icon: const Icon(Icons.call_outlined, size: 18),
+                            label: const Text('Call'),
+                            onPressed: () {
+                              // TODO: Implement call functionality
+                              print('Call button pressed for ${rideData['driverName']}');
+                            },
+                          ),
+                        ],
                       ),
-                      const SizedBox(width: 16), // Spacing between buttons
+                      const Spacer(), // Pushes Info button to the right
+                      // Info Button
                       TextButton.icon(
                         style: TextButton.styleFrom(
-                          // Change color to onSurfaceVariant (greyish)
                           foregroundColor: colorScheme.onSurfaceVariant,
                           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                           tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                         ),
-                        icon: const Icon(Icons.call_outlined, size: 18),
-                        label: const Text('Call'),
+                        icon: const Icon(Icons.info_outline, size: 18),
+                        label: const Text('Driver Info'),
                         onPressed: () {
-                          // TODO: Implement call functionality
-                          print('Call button pressed for ${rideData['driverName']}');
+                          // TODO: Implement driver info/reviews navigation
+                          print('Info button pressed for ${rideData['driverName']}');
                         },
                       ),
                     ],
                   ),
                 ]
               ],
+            ),
+          ),
+          // Layer 3: Positioned Edit Button (On top of content & gradient)
+          Positioned(
+            top: 32.0, // Increased top padding slightly
+            right: 8.0,
+            child: IconButton(
+              icon: const Icon(Icons.edit_outlined, size: 18),
+              color: colorScheme.onSurfaceVariant, // Subtle color
+              padding: EdgeInsets.zero,
+              constraints: const BoxConstraints(),
+              tooltip: 'Edit Ride',
+              onPressed: () {
+                // TODO: Implement edit ride functionality
+                print('Edit button pressed for ${rideData['date']}');
+              },
             ),
           ),
         ],
