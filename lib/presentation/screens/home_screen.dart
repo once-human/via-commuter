@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'dart:ui'; // Import for ImageFilter
 import 'package:via_commuter/presentation/widgets/bottom_navbar.dart';
 
 class HomeScreen extends StatelessWidget {
@@ -128,6 +129,9 @@ class HomeScreen extends StatelessWidget {
     final colorScheme = theme.colorScheme;
     final textTheme = theme.textTheme;
     const userName = "Khushi";
+    // Placeholder subscription data
+    const subscriptionPlan = "Premium Plan";
+    const subscriptionDetails = "Active until Dec 2024"; 
 
     // Enable high refresh rate
     SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
@@ -151,9 +155,17 @@ class HomeScreen extends StatelessWidget {
                 top: MediaQuery.of(context).padding.top,
                 left: 16.0,
                 right: 16.0,
-                bottom: 16.0, // Add some padding below the greeting
+                bottom: 16.0, // Add some padding below the greeting & subscription
               ),
-              child: _buildGreeting(context, colorScheme, textTheme, userName),
+              child: Column( // Wrap greeting Row in a Column
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildGreeting(context, colorScheme, textTheme, userName),
+                  const SizedBox(height: 12), // Spacing before subscription status
+                  _buildSubscriptionStatus(context, colorScheme, textTheme, subscriptionPlan, subscriptionDetails),
+                ],
+              ),
             ),
           ),
           // Scrollable Content Section
@@ -165,14 +177,22 @@ class HomeScreen extends StatelessWidget {
                 ),
                 cacheExtent: 1000,
                 slivers: [
-                  // Remove SliverPersistentHeader - padding handled above
-                  // Remove SliverToBoxAdapter for greeting - moved above
-
-                  // Spacing before "Upcoming Ride Details"
-                  const SliverToBoxAdapter(
-                    child: SizedBox(height: 8), // Reduced top spacing
+                  // --- Add Search Bar ---
+                  SliverToBoxAdapter(
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(16.0, 8.0, 16.0, 16.0), // Add padding around search bar
+                      child: _buildSearchBar(context, colorScheme, textTheme),
+                    ),
                   ),
-                  if (hasUpcomingRides)
+                  // --- End Search Bar ---
+
+                  // --- Conditional Content: Upcoming Rides or Empty State ---
+                  if (hasUpcomingRides) ...[
+                    // Spacing before "Upcoming Ride Details"
+                    const SliverToBoxAdapter(
+                      child: SizedBox(height: 8),
+                    ),
+                    // Title
                     SliverToBoxAdapter(
                       child: Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -184,7 +204,7 @@ class HomeScreen extends StatelessWidget {
                         ),
                       ),
                     ),
-                  if (hasUpcomingRides)
+                    // List
                     SliverPadding(
                       padding: const EdgeInsets.symmetric(horizontal: 16.0),
                       sliver: SliverList(
@@ -207,17 +227,46 @@ class HomeScreen extends StatelessWidget {
                         ),
                       ),
                     ),
-                  SliverFillRemaining(
-                    hasScrollBody: false,
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        const SizedBox(height: 24),
-                        const SizedBox(height: 80),
-                      ],
+                  ] else ...[
+                    // Empty State Widget
+                    SliverFillRemaining(
+                      hasScrollBody: false,
+                      child: Center(
+                        child: Padding(
+                          padding: const EdgeInsets.all(32.0),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.event_busy_outlined,
+                                size: 64,
+                                color: colorScheme.onSurfaceVariant.withOpacity(0.5),
+                              ),
+                              const SizedBox(height: 16),
+                              Text(
+                                'No upcoming rides scheduled.',
+                                style: textTheme.titleMedium?.copyWith(
+                                  color: colorScheme.onSurfaceVariant,
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                              const SizedBox(height: 24),
+                              FilledButton.icon(
+                                icon: const Icon(Icons.add),
+                                label: const Text('Book a Ride'),
+                                onPressed: () {
+                                  // TODO: Implement ride booking navigation
+                                  print('Book ride from empty state pressed');
+                                },
+                              )
+                            ],
+                          ),
+                        ),
+                      ),
                     ),
-                  ),
+                  ],
+                  // --- End Conditional Content ---
                 ],
               ),
             ),
@@ -251,7 +300,12 @@ class HomeScreen extends StatelessWidget {
             ],
           ),
         ),
-        Chip(
+        // Use ActionChip to make it tappable
+        ActionChip(
+          onPressed: () {
+            // TODO: Implement navigation to Points screen
+            print('Points chip pressed');
+          },
           avatar: CircleAvatar(
             backgroundColor: Colors.amber.shade700,
             child: const Icon(Icons.star, size: 16, color: Colors.white),
@@ -270,6 +324,71 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
+  Widget _buildSubscriptionStatus(
+    BuildContext context,
+    ColorScheme colorScheme,
+    TextTheme textTheme,
+    String plan,
+    String details,
+  ) {
+    return Row(
+      children: [
+        Icon(
+          Icons.workspace_premium_outlined, // Or another relevant icon
+          color: colorScheme.primary,
+          size: 18,
+        ),
+        const SizedBox(width: 8),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              plan,
+              style: textTheme.labelLarge?.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            Text(
+              details,
+              style: textTheme.labelMedium?.copyWith(
+                color: colorScheme.onSurfaceVariant,
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSearchBar(BuildContext context, ColorScheme colorScheme, TextTheme textTheme) {
+    return TextField(
+      readOnly: true, // Make it non-editable for now, just UI
+      onTap: () {
+        // TODO: Implement navigation to search/booking screen
+        print("Search bar tapped");
+      },
+      decoration: InputDecoration(
+        hintText: 'Where to?',
+        prefixIcon: const Icon(Icons.search),
+        filled: true,
+        fillColor: colorScheme.surfaceVariant.withOpacity(0.5),
+        contentPadding: EdgeInsets.zero, // Remove default padding
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(30.0), // Make it pill-shaped
+          borderSide: BorderSide.none, // No border
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(30.0),
+          borderSide: BorderSide.none,
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(30.0),
+          borderSide: BorderSide(color: colorScheme.primary, width: 1.0), // Highlight on focus
+        ),
+      ),
+    );
+  }
+
   Widget _buildUpcomingRideCard(
     BuildContext context,
     ColorScheme colorScheme,
@@ -279,97 +398,187 @@ class HomeScreen extends StatelessWidget {
     return Card(
       elevation: 2,
       margin: EdgeInsets.zero,
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      // Adjust card color for gradient blending
+      color: colorScheme.surfaceVariant.withOpacity(0.3),
+      clipBehavior: Clip.antiAlias, // Ensure gradient is clipped to card shape
+      child: Stack( // Use Stack to layer gradient behind content
+        children: [
+          // Simplified, Single Subtle Gradient Layer (No Blur)
+          Positioned.fill(
+            child: Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  // Very faint gradient
+                  colors: [
+                    colorScheme.primary.withOpacity(0.03), // Extremely subtle start color
+                    colorScheme.surfaceVariant.withOpacity(0.3), // Card base color
+                  ],
+                  stops: [
+                    0.0, // Start color at the very beginning
+                    0.4, // Fade completely to base color by 40% of the gradient
+                  ],
+                  begin: Alignment.topRight, // Start corner
+                  end: Alignment.bottomLeft, // End corner (defines direction)
+                ),
+              ),
+            ),
+          ),
+          // Layer 2: Original Card Content (On top of gradient)
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  rideData['date'] as String,
-                  style: textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                Text(
-                  '${rideData['pickupTime']} - ${rideData['dropTime']}',
-                  style: textTheme.bodyMedium,
-                ),
-              ],
-            ),
-            const SizedBox(height: 8),
-            Text(
-              rideData['pickupLocation'] as String,
-              style: textTheme.bodyMedium,
-            ),
-            const SizedBox(height: 4),
-            Text(
-              rideData['dropLocation'] as String,
-              style: textTheme.bodyMedium,
-            ),
-            const Divider(height: 24),
-            Row(
-              children: [
-                CircleAvatar(
-                  radius: 20,
-                  backgroundColor: colorScheme.primaryContainer,
-                  child: Text(
-                    rideData['driverName'].toString()[0],
-                    style: textTheme.titleMedium?.copyWith(
-                      color: colorScheme.onPrimaryContainer,
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        rideData['driverName'] as String,
-                        style: textTheme.titleSmall,
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      rideData['date'] as String,
+                      style: textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
+                        color: colorScheme.primary,
                       ),
-                      Text(
-                        '${rideData['vehicleModel']} - ${rideData['vehicleNumber']}',
-                        style: textTheme.bodySmall?.copyWith(
-                          color: colorScheme.onSurfaceVariant,
-                        ),
+                    ),
+                    Text(
+                      '${rideData['pickupTime']} - ${rideData['dropTime']}',
+                      style: textTheme.bodyMedium,
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                // Use RichText for Pickup line
+                RichText(
+                  text: TextSpan(
+                    style: textTheme.bodyMedium, // Default style for the line
+                    children: [
+                      const TextSpan(text: 'Pickup: '), // Default color (white)
+                      TextSpan(
+                        text: rideData['pickupLocation']?.substring(7) ?? '', // Extract location part
+                        style: TextStyle(color: colorScheme.onSurfaceVariant), // Greyish for location
                       ),
                     ],
                   ),
                 ),
-                Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.end,
+                const SizedBox(height: 4),
+                // Use RichText for Drop line
+                RichText(
+                  text: TextSpan(
+                    style: textTheme.bodyMedium, // Default style for the line
+                    children: [
+                      const TextSpan(text: 'Drop: '), // Default color (white)
+                      TextSpan(
+                        text: rideData['dropLocation']?.substring(6) ?? '', // Extract location part
+                        style: TextStyle(color: colorScheme.onSurfaceVariant), // Greyish for location
+                      ),
+                    ],
+                  ),
+                ),
+                const Divider(height: 24),
+                Row(
                   children: [
-                    Row(
+                    CircleAvatar(
+                      radius: 20,
+                      // Use pure black/white based on theme brightness
+                      backgroundColor: Theme.of(context).brightness == Brightness.dark 
+                                         ? Colors.black 
+                                         : Colors.white,
+                      child: Text(
+                        rideData['driverName'].toString()[0],
+                        style: textTheme.titleMedium?.copyWith(
+                          // Keep contrast color (onSurface: white on black, black on white)
+                          color: colorScheme.onSurface, 
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            rideData['driverName'] as String,
+                            // Revert to default text color
+                            style: textTheme.titleSmall,
+                          ),
+                          Text(
+                            '${rideData['vehicleModel']} - ${rideData['vehicleNumber']}',
+                            style: textTheme.bodySmall?.copyWith(
+                              color: colorScheme.onSurfaceVariant,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Column(
                       mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
-                        const Icon(Icons.star, size: 16, color: Colors.amber),
-                        const SizedBox(width: 4),
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(Icons.star, size: 16, color: Colors.amber),
+                            const SizedBox(width: 4),
+                            Text(
+                              rideData['driverRating'].toString(),
+                              style: textTheme.bodyMedium,
+                            ),
+                          ],
+                        ),
                         Text(
-                          rideData['driverRating'].toString(),
-                          style: textTheme.bodyMedium,
+                          rideData['otp'] as String,
+                          style: textTheme.bodySmall?.copyWith(
+                            color: colorScheme.primary,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ],
                     ),
-                    Text(
-                      rideData['otp'] as String,
-                      style: textTheme.bodySmall?.copyWith(
-                        color: colorScheme.primary,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
                   ],
                 ),
+                // Conditionally render buttons only for Today/Tomorrow
+                if (rideData['date'] == 'Today' || rideData['date'] == 'Tomorrow') ...[
+                  const SizedBox(height: 16),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.start, // Align buttons to the start
+                    children: [
+                      TextButton.icon(
+                        style: TextButton.styleFrom(
+                          // Change color to onSurfaceVariant (greyish)
+                          foregroundColor: colorScheme.onSurfaceVariant,
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        ),
+                        icon: const Icon(Icons.message_outlined, size: 18),
+                        label: const Text('Message'),
+                        onPressed: () {
+                          // TODO: Implement message functionality
+                          print('Message button pressed for ${rideData['driverName']}');
+                        },
+                      ),
+                      const SizedBox(width: 16), // Spacing between buttons
+                      TextButton.icon(
+                        style: TextButton.styleFrom(
+                          // Change color to onSurfaceVariant (greyish)
+                          foregroundColor: colorScheme.onSurfaceVariant,
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        ),
+                        icon: const Icon(Icons.call_outlined, size: 18),
+                        label: const Text('Call'),
+                        onPressed: () {
+                          // TODO: Implement call functionality
+                          print('Call button pressed for ${rideData['driverName']}');
+                        },
+                      ),
+                    ],
+                  ),
+                ]
               ],
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
