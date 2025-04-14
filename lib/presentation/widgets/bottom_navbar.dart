@@ -66,8 +66,8 @@ class BottomNavBar extends StatelessWidget {
         child: ClipRRect(
           borderRadius: borderRadius,
           child: BackdropFilter(
-            // Restore strong blur radius
-            filter: ImageFilter.blur(sigmaX: 10.0, sigmaY: 10.0), // Strong blur
+            // Reduce blur slightly for performance optimization
+            filter: ImageFilter.blur(sigmaX: 8.0, sigmaY: 8.0), // Reduced blur
             child: Container(
               height: containerHeight, 
               decoration: BoxDecoration(
@@ -105,14 +105,29 @@ class BottomNavBar extends StatelessWidget {
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Container(
-                            padding: const EdgeInsets.all(8),
+                          // AnimatedSwitcher for smooth indicator transition (optional but nice)
+                          AnimatedContainer(
+                            duration: const Duration(milliseconds: 200),
+                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6), // Padding inside indicator
                             decoration: BoxDecoration(
-                              color: isActive ? indicatorColor : Colors.transparent,
-                              shape: BoxShape.circle,
+                              // Apply gradient only if active
+                              gradient: isActive 
+                                ? LinearGradient(
+                                    colors: [
+                                      colorScheme.primary.withOpacity(0.2),
+                                      colorScheme.primary.withOpacity(0.1),
+                                    ],
+                                    begin: Alignment.topLeft,
+                                    end: Alignment.bottomRight,
+                                  )
+                                : null,
+                              // Use StadiumBorder for pill shape
+                              // Use transparent color if not active
+                              color: !isActive ? Colors.transparent : null, 
+                              borderRadius: BorderRadius.circular(20), // Equivalent to StadiumBorder
                             ),
                             child: Icon(
-                              item.icon, 
+                              isActive ? item.activeIcon : item.icon, // Show active/inactive icon
                               color: isActive ? activeColor : inactiveColor,
                               size: 24, 
                             ),
