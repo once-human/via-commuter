@@ -215,9 +215,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     final colorScheme = theme.colorScheme;
     final textTheme = theme.textTheme;
     const userName = "Khushi";
-    // Placeholder subscription data
     const subscriptionPlan = "Premium Plan";
-    const subscriptionDetails = "Active until Sept 2025"; 
+    const subscriptionDetails = "Active until Sept 2025";
 
     // Enable high refresh rate
     SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
@@ -280,7 +279,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                           .animate()
                           .fadeIn(duration: 400.ms)
                           .slideY(begin: -0.2, duration: 300.ms, curve: Curves.easeOut),
-                      const SizedBox(height: 12), // Spacing before subscription status
+                      const SizedBox(height: 12), // CONST
                       _buildSubscriptionStatus(context, colorScheme, textTheme, subscriptionPlan, subscriptionDetails)
                           // Add entrance animation to subscription row
                           .animate()
@@ -300,7 +299,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                     physics: const ClampingScrollPhysics(
                       parent: AlwaysScrollableScrollPhysics(),
                     ),
-                    cacheExtent: 1000,
+                    cacheExtent: 500,
                     slivers: [
                       // --- Remove Search Bar ---
                       // SliverToBoxAdapter(
@@ -363,7 +362,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                                   // Apply flutter_staggered_animations wrappers
                                   return AnimationConfiguration.staggeredList(
                                     position: index,
-                                    duration: const Duration(milliseconds: 375), // Stagger duration
+                                    duration: const Duration(milliseconds: 375), // CONST
                                     child: SlideAnimation(
                                       verticalOffset: 50.0, // Initial offset for stagger
                                       // FadeInAnimation is handled by flutter_animate now
@@ -392,7 +391,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                                     size: 64,
                                     color: colorScheme.onSurfaceVariant.withOpacity(0.5),
                                   ),
-                                  const SizedBox(height: 16),
+                                  const SizedBox(height: 16), // CONST
                                   Text(
                                     'No upcoming rides scheduled.',
                                     style: textTheme.titleMedium?.copyWith(
@@ -400,7 +399,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                                     ),
                                     textAlign: TextAlign.center,
                                   ),
-                                  const SizedBox(height: 24),
+                                  const SizedBox(height: 24), // CONST
                                   FilledButton.icon(
                                     icon: const Icon(Icons.add),
                                     label: const Text('Book a Ride'),
@@ -453,7 +452,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              const SizedBox(height: 4),
+              const SizedBox(height: 4), // CONST
               Text(
                 'Ready for your ride today?',
                 style: textTheme.bodyLarge?.copyWith(
@@ -498,7 +497,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
               ),
               backgroundColor: colorScheme.surfaceVariant.withOpacity(0.5),
               side: BorderSide.none,
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4), // CONST
             ),
           ),
         ),
@@ -525,7 +524,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
               color: colorScheme.primary,
               size: 18,
             ),
-            const SizedBox(width: 8),
+            const SizedBox(width: 8), // CONST
             // Wrap the Column containing text with Flexible
             Flexible(
               child: Column(
@@ -560,14 +559,14 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
               style: ElevatedButton.styleFrom(
                 backgroundColor: colorScheme.primary, // Ensure primary color background
                 foregroundColor: colorScheme.onPrimary, // Ensure good text contrast
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10), // Reduced horizontal padding
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10), // CONST
                 textStyle: textTheme.labelLarge, // Reverted back to larger text style
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12.0), // Standard rounded corners
                 ),
               ),
-              icon: const Icon(Icons.directions_car_filled, size: 18), // Changed icon
-              label: const Text('Book Ride'),
+              icon: const Icon(Icons.directions_car_filled, size: 18), // CONST
+              label: const Text('Book Ride'), // CONST
               onPressed: () {}, // Keep dummy onPressed or remove if not needed
             ),
           ),
@@ -713,7 +712,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                                 text: TextSpan(
                                   style: textTheme.bodyMedium, // Default style for the line
                                   children: [
-                                    const TextSpan(text: 'Pickup: '), // Default color (white)
+                                    const TextSpan(text: 'Pickup: '), // CONST
                                     TextSpan(
                                       text: rideData['pickupLocation']?.substring(7) ?? '', // Extract location part
                                       style: TextStyle(color: colorScheme.onSurfaceVariant), // Greyish for location
@@ -721,13 +720,13 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                                   ],
                                 ),
                               ),
-                              const SizedBox(height: 4),
+                              const SizedBox(height: 4), // CONST
                               // Use RichText for Drop line
                               RichText(
                                 text: TextSpan(
                                   style: textTheme.bodyMedium, // Default style for the line
                                   children: [
-                                    const TextSpan(text: 'Drop: '), // Default color (white)
+                                    const TextSpan(text: 'Drop: '), // CONST
                                     TextSpan(
                                       text: rideData['dropLocation']?.substring(6) ?? '', // Extract location part
                                       style: TextStyle(color: colorScheme.onSurfaceVariant), // Greyish for location
@@ -735,7 +734,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                                   ],
                                 ),
                               ),
-                              const Divider(height: 24),
+                              const Divider(height: 24), // CONST
                               Row(
                                 children: [
                                   CircleAvatar(
@@ -752,7 +751,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                                       ),
                                     ),
                                   ),
-                                  const SizedBox(width: 12),
+                                  const SizedBox(width: 12), // CONST
                                   Expanded(
                                     child: Column(
                                       mainAxisSize: MainAxisSize.min,
@@ -787,8 +786,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                                       Row(
                                         mainAxisSize: MainAxisSize.min,
                                         children: [
-                                          const Icon(Icons.star, size: 16, color: Colors.amber),
-                                          const SizedBox(width: 4),
+                                          const Icon(Icons.star, size: 16, color: Colors.amber), // CONST
+                                          const SizedBox(width: 4), // CONST
                                           Text(
                                             rideData['driverRating'].toString(),
                                             style: textTheme.bodyMedium,
@@ -808,7 +807,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                               ),
                               // Conditionally render buttons only for Today/Tomorrow
                               if (rideData['date'] == 'Today' || rideData['date'] == 'Tomorrow') ...[
-                                const SizedBox(height: 16),
+                                const SizedBox(height: 16), // CONST
                                 Row(
                                   // Restructure to push Info button to the right
                                   children: [
@@ -819,11 +818,11 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                                         TextButton.icon(
                                           style: TextButton.styleFrom(
                                             foregroundColor: colorScheme.onSurfaceVariant,
-                                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4), // CONST
                                             tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                                           ),
-                                          icon: const Icon(Icons.message_outlined, size: 18),
-                                          label: const Text('Message'),
+                                          icon: const Icon(Icons.message_outlined, size: 18), // CONST
+                                          label: const Text('Message'), // CONST
                                           onPressed: () {
                                             // Light haptic for message button
                                             HapticFeedback.lightImpact();
@@ -831,15 +830,15 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                                             print('Message button pressed for ${rideData['driverName']}');
                                           },
                                         ),
-                                        const SizedBox(width: 16), // Spacing between buttons
+                                        const SizedBox(width: 16), // CONST
                                         TextButton.icon(
                                           style: TextButton.styleFrom(
                                             foregroundColor: colorScheme.onSurfaceVariant,
-                                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4), // CONST
                                             tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                                           ),
-                                          icon: const Icon(Icons.call_outlined, size: 18),
-                                          label: const Text('Call'),
+                                          icon: const Icon(Icons.call_outlined, size: 18), // CONST
+                                          label: const Text('Call'), // CONST
                                           onPressed: () {
                                             // Light haptic for call button
                                             HapticFeedback.lightImpact();
@@ -849,16 +848,16 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                                         ),
                                       ],
                                     ),
-                                    const Spacer(), // Pushes Info button to the right
+                                    const Spacer(), // CONST
                                     // Info Button
                                     TextButton.icon(
                                       style: TextButton.styleFrom(
                                         foregroundColor: colorScheme.onSurfaceVariant,
-                                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4), // CONST
                                         tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                                       ),
-                                      icon: const Icon(Icons.info_outline, size: 18),
-                                      label: const Text('Info'),
+                                      icon: const Icon(Icons.info_outline, size: 18), // CONST
+                                      label: const Text('Info'), // CONST
                                       onPressed: () {
                                         // Light haptic for info button
                                         HapticFeedback.lightImpact();
@@ -882,7 +881,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                         icon: const Icon(Icons.edit_outlined, size: 18),
                         color: colorScheme.onSurfaceVariant, // Subtle color
                         padding: EdgeInsets.zero,
-                        constraints: const BoxConstraints(),
+                        constraints: const BoxConstraints(), // CONST
                         tooltip: 'Edit Ride',
                         onPressed: () {
                           // Light haptic for edit button
@@ -900,25 +899,14 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                 Container(
                   width: double.infinity, // Takes width from parent Column padding
                   // Increase horizontal margin to make it narrower
-                  margin: const EdgeInsets.symmetric(horizontal: 16.0), 
-                  padding: const EdgeInsets.symmetric(vertical: 4.0), // Further reduced padding
+                  margin: const EdgeInsets.symmetric(horizontal: 16.0),
+                  padding: const EdgeInsets.symmetric(vertical: 3.0), // Further reduced padding
                   decoration: BoxDecoration(
-                    // Use Gradient to simulate shadow from card above
-                    gradient: LinearGradient(
-                      colors: [
-                        // Blend primaryContainer with faint black for top shadow effect
-                        Color.alphaBlend(Colors.black.withOpacity(0.1), colorScheme.primaryContainer),
-                        // Fade to the regular primaryContainer color
-                        colorScheme.primaryContainer,
-                      ],
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                      stops: [0.0, 0.8] // Concentrate shadow near the top
-                    ),
-                    // color: colorScheme.primaryContainer, // Removed solid color
-                    // Round only bottom corners 
+                    // Use solid, darker primary color
+                    color: Color.alphaBlend(Colors.black.withOpacity(0.25), colorScheme.primary),
+                    // Round only bottom corners
                     borderRadius: const BorderRadius.vertical(
-                      bottom: Radius.circular(12.0), 
+                      bottom: Radius.circular(12.0),
                     ),
                   ),
                   // Use a Row for text and arrow
@@ -929,7 +917,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                       Text(
                         'View More Ride Details', // Updated text
                         style: textTheme.labelSmall?.copyWith( // Reduced text size
-                          color: colorScheme.onPrimaryContainer, // Contrast color for primaryContainer
+                          color: colorScheme.onPrimary, // Use onPrimary for contrast with darker green
                           fontWeight: FontWeight.bold,
                         ),
                       ),
@@ -937,7 +925,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                       Icon(
                         Icons.arrow_forward_ios, // Simple arrow icon
                         size: 12, // Small icon size
-                        color: colorScheme.onPrimaryContainer, // Contrast color for primaryContainer
+                        color: colorScheme.onPrimary, // Use onPrimary for contrast
                       ),
                     ],
                   ),
