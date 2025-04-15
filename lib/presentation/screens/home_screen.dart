@@ -1,11 +1,103 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'dart:ui'; // Import for ImageFilter
+import 'dart:math'; // Import for math functions (cos, sin)
 import 'package:via_commuter/presentation/widgets/bottom_navbar.dart';
 import 'package:via_commuter/presentation/screens/ride_detail_screen.dart'; // Import detail screen
 // Add animation imports
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
+import 'package:via_commuter/app/theme/colors.dart'; // <-- ADD IMPORT for kPrimaryGreen
+
+// Import walkthrough packages
+import 'package:tutorial_coach_mark/tutorial_coach_mark.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+// --- Custom Painter for the Arrow ---
+class DottedCurveArrowPainter extends CustomPainter {
+  final Color color;
+  final double strokeWidth;
+
+  DottedCurveArrowPainter({
+    this.color = Colors.white,
+    this.strokeWidth = 2.5,
+  });
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = color
+      ..strokeWidth = strokeWidth
+      ..style = PaintingStyle.stroke
+      ..strokeCap = StrokeCap.round;
+
+    // Define the curve control points relative to the canvas size
+    // Start near bottom center, curve up towards top center
+    final startPoint = Offset(size.width * 0.5, size.height * 0.9);
+    // Adjust control point for a more pronounced curve
+    final controlPoint = Offset(size.width * 0.05, size.height * 0.05); 
+    final endPoint = Offset(size.width * 0.5, size.height * 0.1);
+
+    final path = Path();
+    path.moveTo(startPoint.dx, startPoint.dy);
+    path.quadraticBezierTo(controlPoint.dx, controlPoint.dy, endPoint.dx, endPoint.dy);
+
+    // Draw the dotted line effect
+    const double dashWidth = 5.0;
+    const double dashSpace = 4.0;
+    double distance = 0.0;
+
+    // Use a single metric computation
+    final metrics = path.computeMetrics().toList();
+    if (metrics.isEmpty) return; // Should not happen for a valid path
+    final metric = metrics.first;
+
+    while (distance < metric.length) {
+      canvas.drawPath(
+        metric.extractPath(distance, distance + dashWidth),
+        paint,
+      );
+      distance += dashWidth + dashSpace;
+    }
+
+    // Draw arrowhead at the end
+    final arrowSize = 10.0;
+    final angle = 3.14159 / 6; // 30 degrees
+
+    // Calculate the angle of the last segment of the curve
+    // We need the tangent at the end point
+    final tangent = metric.getTangentForOffset(metric.length);
+    if (tangent == null) return; // Should not happen
+
+    final arrowAngle = tangent.angle;
+
+    // Arrow line 1
+    final arrowPath1 = Path();
+    arrowPath1.moveTo(endPoint.dx, endPoint.dy);
+    arrowPath1.lineTo(
+      endPoint.dx - arrowSize * cos(arrowAngle - angle),
+      endPoint.dy - arrowSize * sin(arrowAngle - angle),
+    );
+
+    // Arrow line 2
+    final arrowPath2 = Path();
+    arrowPath2.moveTo(endPoint.dx, endPoint.dy);
+    arrowPath2.lineTo(
+      endPoint.dx - arrowSize * cos(arrowAngle + angle),
+      endPoint.dy - arrowSize * sin(arrowAngle + angle),
+    );
+
+    // Draw the arrowhead lines (using the same paint for simplicity)
+    canvas.drawPath(arrowPath1, paint);
+    canvas.drawPath(arrowPath2, paint);
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) {
+    return false; // No need to repaint unless properties change
+  }
+}
+// --- End Custom Painter ---
 
 // Convert to StatefulWidget
 class HomeScreen extends StatefulWidget {
@@ -23,6 +115,14 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
 
   late AnimationController _bookRideTapController;
   late Animation<double> _bookRideScaleAnimation;
+
+  // --- Walkthrough State ---
+  final GlobalKey _bookRideKey = GlobalKey(); // Key for the Book Ride button
+  final GlobalKey _todayOtpKey = GlobalKey(); // Key for Today's OTP
+  final GlobalKey _todayViewMoreKey = GlobalKey(); // Key for Today's View More
+  TutorialCoachMark? _confirmationTutorialCoachMark;
+  TutorialCoachMark? _mainTutorialCoachMark;
+  // --- End Walkthrough State ---
 
   // Dummy data remains here for now
   static final List<Map<String, dynamic>> upcomingRides = [
@@ -51,8 +151,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       'driverImageUrl': "",
       'driverRating': 5.0,
       'otp': "OTP 8888",
-      'vehicleModel': "Flux Capacitor Express",
-      'vehicleNumber': "OUTATIME",
+      'vehicleModel': "BMW X1",
+      'vehicleNumber': "MH 12 PR 6215",
     },
     {
       'userName': "Khushi",
@@ -162,6 +262,9 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     _bookRideScaleAnimation = Tween<double>(begin: 1.0, end: 0.95).animate(
       CurvedAnimation(parent: _bookRideTapController, curve: Curves.easeInOut),
     );
+
+    // Check and Show Tutorial after build
+    WidgetsBinding.instance.addPostFrameCallback((_) => _checkAndShowTutorial());
   }
 
   @override
@@ -177,11 +280,13 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   }
 
   void _handlePointsTapUp(TapUpDetails details) {
+    // Trigger haptic immediately on tap up
+    HapticFeedback.mediumImpact(); 
+    // Still reverse the animation
     Future.delayed(const Duration(milliseconds: 100), () {
         if (mounted) _pointsTapController.reverse();
     });
-     // Original tap logic
-     HapticFeedback.lightImpact();
+     // Original tap logic (excluding haptic)
      print('Points chip pressed');
      // TODO: Implement navigation
   }
@@ -195,11 +300,13 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   }
 
   void _handleBookRideTapUp(TapUpDetails details) {
+    // Trigger haptic immediately on tap up
+    HapticFeedback.mediumImpact();
+    // Still reverse the animation
     Future.delayed(const Duration(milliseconds: 100), () {
       if (mounted) _bookRideTapController.reverse();
     });
-    // Original tap logic
-    HapticFeedback.lightImpact();
+    // Original tap logic (excluding haptic)
     print('Book ride from header pressed');
     // TODO: Implement navigation
   }
@@ -208,6 +315,376 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
      if (mounted) _bookRideTapController.reverse();
   }
   // --- End Animation Handlers ---
+
+  // --- Walkthrough Methods ---
+  Future<void> _checkAndShowTutorial() async {
+    // SharedPreferences prefs = await SharedPreferences.getInstance(); // DEBUG: Commented out
+    // bool hasSeenTutorial = prefs.getBool('hasSeenBookRideTutorial') ?? false; // DEBUG: Commented out
+
+    // if (!hasSeenTutorial) { // DEBUG: Commented out condition
+      // Show confirmation overlay first
+      // bool? userWantsTutorial = await showDialog<bool>( ... ); // REMOVED DIALOG
+      
+      // If user declined or dismissed, mark as seen and exit
+      // if (userWantsTutorial != true) { ... } // REMOVED DIALOG CHECK
+
+      // If user agreed, proceed with showing the tutorial
+      // _createTutorial(); // Call the new confirmation tutorial instead
+      _showConfirmationTutorial();
+    // }
+  }
+
+  // Shows the initial Yes/No overlay
+  void _showConfirmationTutorial() {
+    _confirmationTutorialCoachMark?.finish(); // Dismiss previous instance if any
+
+    List<TargetFocus> targets = [];
+    // Get screen size for positioning
+    final Size screenSize = MediaQuery.of(context).size;
+
+    targets.add(
+      TargetFocus(
+        identify: "Confirmation",
+        // Provide a targetPosition (e.g., screen center) since no keyTarget
+        targetPosition: TargetPosition(
+          Size.zero,      // Correct first argument: Target size is zero (invisible focus)
+          Offset(screenSize.width * 0.5, screenSize.height * 0.5), // Correct second argument: Offset position
+        ),
+        // alignSkip: Alignment.bottomRight, // Keep skip alignment if needed (though button is custom now)
+        shape: ShapeLightFocus.Circle, 
+        radius: 0, // Make focus invisible
+        contents: [
+          TargetContent(
+            align: ContentAlign.custom,
+            customPosition: CustomTargetContentPosition(
+              top: screenSize.height * 0.4, // Keep custom content positioning
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                Text(
+                  "Quick Tour?",
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                    fontSize: 24.0,
+                  ),
+                ),
+                SizedBox(height: 10),
+                Text(
+                  "Would you like a brief tour?",
+                  style: TextStyle(color: Colors.white.withOpacity(0.9), fontSize: 16.0),
+                ),
+                SizedBox(height: 30),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    TextButton(
+                      style: TextButton.styleFrom(foregroundColor: Colors.white70),
+                      onPressed: () {
+                         _confirmationTutorialCoachMark?.skip(); // Trigger skip logic
+                      },
+                      child: const Text("Skip Tour", style: TextStyle(fontSize: 16)),
+                    ),
+                    SizedBox(width: 20),
+                    FilledButton(
+                      style: FilledButton.styleFrom(
+                        backgroundColor: Theme.of(context).colorScheme.primary,
+                        foregroundColor: Theme.of(context).colorScheme.onPrimary,
+                        padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12)
+                      ),
+                      onPressed: () {
+                        _confirmationTutorialCoachMark?.finish(); // Close this overlay
+                        _showMainTutorial(); // Start the main tutorial
+                      },
+                      child: const Text("Yes, Please!", style: TextStyle(fontSize: 16)),
+                    ),
+                  ],
+                )
+              ],
+            ),
+          )
+        ],
+      )
+    );
+
+
+    _confirmationTutorialCoachMark = TutorialCoachMark(
+        targets: targets,
+        colorShadow: Colors.black.withOpacity(0.85),
+        skipWidget: Container(), // Hide default skip button
+        paddingFocus: 0,
+        opacityShadow: 0.85,
+        imageFilter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+        useSafeArea: true, // Important for positioning
+        onFinish: () {
+          print("Confirmation Tutorial Finished.");
+        },
+        onSkip: () {
+          // Mark as seen if user skips confirmation
+          // _markTutorialSkipped(); // DEBUG: Commented out
+           print("User skipped confirmation tutorial.");
+          return true; // Allow skip
+        },
+    )..show(context: context);
+  }
+
+
+  // Shows the main feature walkthrough
+  void _showMainTutorial() {
+     _mainTutorialCoachMark?.finish(); // Dismiss previous just in case
+
+    _mainTutorialCoachMark = TutorialCoachMark(
+      targets: _createMainTutorialTargets(), // Use the main targets
+      colorShadow: Colors.black.withOpacity(0.85), // Keep base color dark
+      skipWidget: Container(), // Hide the default button entirely
+      paddingFocus: 10,
+      opacityShadow: 0.7, // REDUCED OPACITY
+      imageFilter: ImageFilter.blur(sigmaX: 5, sigmaY: 5), // Slightly less blur
+      onFinish: () {
+        // Mark as seen when the *main* tutorial finishes (or is skipped)
+        // SharedPreferences prefs = await SharedPreferences.getInstance(); // DEBUG: Commented out
+        // await prefs.setBool('hasSeenBookRideTutorial', true); // DEBUG: Commented out
+        print("Main Tutorial finished."); // DEBUG: Simplified message
+      },
+      onClickTarget: (target) {
+        print('target clicked: ${target.identify}');
+        // Handle specific interactions like navigating on the last step
+        if (target.identify == "ViewMoreButton") {
+           _triggerViewMoreNavigation(target.keyTarget);
+        }
+      },
+      onClickTargetWithTapPosition: (target, tapDetails) {
+        print("target ${target.identify} tapped at: ${tapDetails.globalPosition}");
+      },
+      onSkip: () {
+        // Mark as seen if user skips main tutorial at any step
+        _markTutorialSkipped(); // This handles the async prefs saving
+        print("Main tutorial skip initiated.");
+        return true; // Return true synchronously to dismiss
+      },
+    )..show(context: context);
+  }
+
+
+  // Helper to trigger navigation for the 'View More' step
+  void _triggerViewMoreNavigation(GlobalKey? key) {
+     // Find the 'Today' ride data again (assuming it's the first if available)
+     if (hasUpcomingRides) {
+        final rideData = upcomingRides.firstWhere((ride) => ride['date'] == 'Today', orElse: () => upcomingRides.first);
+        final String heroTag = 'rideCard_${rideData['date'] ?? 'nodate'}_${rideData['pickupTime'] ?? 'notime'}';
+
+        // Simulate the tap action
+        HapticFeedback.heavyImpact();
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => RideDetailScreen(
+              rideData: rideData,
+              heroTag: heroTag,
+            ),
+          ),
+        );
+     }
+  }
+
+  // Helper function to handle async SharedPreferences update on skip
+  Future<void> _markTutorialSkipped() async {
+    // SharedPreferences prefs = await SharedPreferences.getInstance(); // DEBUG: Commented out
+    // await prefs.setBool('hasSeenBookRideTutorial', true); // DEBUG: Commented out
+    print("Tutorial skipped and marked as seen in SharedPreferences.");
+  }
+
+  // Creates the targets for the MAIN walkthrough
+  List<TargetFocus> _createMainTutorialTargets() {
+    List<TargetFocus> targets = [];
+    int currentStep = 0;
+
+    // --- Determine Total Steps --- 
+    int totalSteps = 1; // Start with Book Ride button
+    if (hasUpcomingRides && _todayOtpKey.currentContext != null) totalSteps++;
+    if (hasUpcomingRides && _todayViewMoreKey.currentContext != null) totalSteps++;
+    
+    // --- Target 1: Book Ride Button (Header) ---
+    currentStep++;
+    targets.add(
+      TargetFocus(
+        identify: "BookRideButton",
+        keyTarget: _bookRideKey,
+        contents: [
+          TargetContent(
+            align: ContentAlign.bottom, 
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                // Progress Indicator
+                _buildTutorialProgressRow(currentStep, totalSteps),
+                const SizedBox(height: 15),
+                // Arrow and Text
+                Center(child: SizedBox(width: 60, height: 50, child: CustomPaint(painter: DottedCurveArrowPainter()))),
+                Text("Book Your Ride", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white, fontSize: 20.0)),
+                Padding(
+                  padding: const EdgeInsets.only(top: 10.0, bottom: 20.0), 
+                  child: Text("Tap here to start booking a new ride.", style: TextStyle(color: Colors.white.withOpacity(0.9), fontSize: 16.0)),
+                ),
+                // Action Button
+                _buildTutorialActionButton(currentStep: currentStep, totalSteps: totalSteps),
+              ],
+            ),
+          )
+        ],
+        shape: ShapeLightFocus.RRect,
+        radius: 12,
+      ),
+    );
+
+    // --- Target 2: OTP on Today Card (if available) ---
+    if (hasUpcomingRides && _todayOtpKey.currentContext != null) {
+        currentStep++;
+        targets.add(
+          TargetFocus(
+            identify: "OtpToday",
+            keyTarget: _todayOtpKey, 
+            contents: [
+              TargetContent(
+                align: ContentAlign.bottom, // CHANGED: Content below the OTP
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    // Progress Indicator (First)
+                    _buildTutorialProgressRow(currentStep, totalSteps),
+                    const SizedBox(height: 15),
+                    // Arrow (Upward)
+                    Center(child: SizedBox(width: 60, height: 50, child: CustomPaint(painter: DottedCurveArrowPainter()))), // REMOVED Transform.rotate
+                    // Text
+                    Text("Ride OTP", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white, fontSize: 20.0)),
+                    Padding(
+                      padding: const EdgeInsets.only(top: 10.0, bottom: 20.0), // Add bottom padding
+                      child: Text("This is the One-Time Password to share with your driver.", style: TextStyle(color: Colors.white.withOpacity(0.9), fontSize: 16.0)),
+                    ),
+                    // Action Button (Last)
+                    _buildTutorialActionButton(currentStep: currentStep, totalSteps: totalSteps), 
+                  ],
+                ),
+              )
+            ],
+            shape: ShapeLightFocus.RRect,
+            radius: 8,
+          ),
+        );
+    }
+
+    // --- Target 3: View More Button (if available) ---
+    // Content position remains top, layout adjusted
+     if (hasUpcomingRides && _todayViewMoreKey.currentContext != null) {
+        currentStep++;
+        targets.add(
+          TargetFocus(
+            identify: "ViewMoreButton",
+            keyTarget: _todayViewMoreKey, 
+            enableOverlayTab: true, 
+            enableTargetTab: true, 
+            contents: [
+              TargetContent(
+                align: ContentAlign.bottom, // CHANGED: Content below the button
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    // Progress Indicator (First)
+                     _buildTutorialProgressRow(currentStep, totalSteps),
+                     const SizedBox(height: 15),
+                    // Arrow (Upward)
+                    Center(child: SizedBox(width: 60, height: 50, child: CustomPaint(painter: DottedCurveArrowPainter()))), // REMOVED Transform.rotate
+                    // Text
+                    Text("Ride Details", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white, fontSize: 20.0)),
+                    Padding(
+                      padding: const EdgeInsets.only(top: 10.0, bottom: 20.0), // Add bottom padding
+                      child: Text("Tap here or on the card to see full details for your upcoming ride.", style: TextStyle(color: Colors.white.withOpacity(0.9), fontSize: 16.0)),
+                    ),
+                    // Action Button (Last)
+                    _buildTutorialActionButton(currentStep: currentStep, totalSteps: totalSteps),
+                  ],
+                ),
+              )
+            ],
+            shape: ShapeLightFocus.RRect,
+            radius: 12,
+          ),
+        );
+     }
+
+    // --- REMOVED Update the LAST target logic --- 
+    /*
+    if (targets.isNotEmpty) {
+      ...
+    }
+    */
+
+    return targets;
+  }
+
+  // Helper widget to build the action button (NEXT or DONE)
+  Widget _buildTutorialActionButton({required int currentStep, required int totalSteps}) {
+    bool isLast = currentStep == totalSteps;
+    return Center(
+      child: isLast
+        ? FilledButton(
+            style: FilledButton.styleFrom(
+              backgroundColor: Theme.of(context).colorScheme.primary,
+              foregroundColor: Theme.of(context).colorScheme.onPrimary,
+            ),
+            onPressed: () => _mainTutorialCoachMark?.finish(),
+            child: const Text("DONE"),
+          )
+        : TextButton(
+            style: TextButton.styleFrom(foregroundColor: Colors.white),
+            onPressed: () => _mainTutorialCoachMark?.next(), // Use next() to go forward
+            child: const Text("NEXT"), // Changed from SKIP
+          ),
+    );
+  }
+
+  // Helper widget for the progress indicator row
+  Widget _buildTutorialProgressRow(int currentStep, int totalSteps) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        // Text Indicator
+        Text(
+          '$currentStep/$totalSteps',
+          style: TextStyle(color: Colors.white.withOpacity(0.8), fontSize: 14),
+        ),
+        const SizedBox(width: 15),
+        // Visual Indicator
+        _buildStepProgressIndicator(currentStep, totalSteps),
+      ],
+    );
+  }
+
+  // Helper widget to build the visual step progress indicator (dots)
+  Widget _buildStepProgressIndicator(int currentStep, int totalSteps) {
+    List<Widget> indicators = [];
+    for (int i = 1; i <= totalSteps; i++) {
+      indicators.add(
+        Container(
+          width: 8.0,
+          height: 8.0,
+          margin: const EdgeInsets.symmetric(horizontal: 3.0),
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: i <= currentStep 
+                     ? Colors.white 
+                     : Colors.white.withOpacity(0.4), // Filled for current/past, faint for future
+          ),
+        ),
+      );
+    }
+    return Row(mainAxisSize: MainAxisSize.min, children: indicators);
+  }
+  // --- End Walkthrough Methods ---
 
   @override
   Widget build(BuildContext context) {
@@ -292,6 +769,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                   // .fadeIn(delay: 50.ms),
                 ),
               ),
+              // Add Divider for separation
+              const Divider(height: 1, thickness: 1),
               // Scrollable Content Section
               Expanded(
                 child: RepaintBoundary(
@@ -550,6 +1029,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         const Spacer(), // Pushes the button to the right
         // Change to ElevatedButton for more prominence
         GestureDetector(
+          key: _bookRideKey, // <<< ASSIGN THE KEY HERE
           onTapDown: _handleBookRideTapDown,
           onTapUp: _handleBookRideTapUp,
           onTapCancel: _handleBookRideTapCancel,
@@ -642,7 +1122,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                                 decoration: BoxDecoration(
                                   gradient: LinearGradient(
                                     colors: [
-                                      colorScheme.primary.withOpacity(0.004), // Extremely faint
+                                      // Use original BRIGHTER green for gradient highlight
+                                      kPrimaryGreen.withOpacity(0.004), // Extremely faint
                                       colorScheme.surfaceVariant.withOpacity(0.3), // Card base color
                                     ],
                                     stops: [
@@ -659,7 +1140,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                                 decoration: BoxDecoration(
                                   gradient: LinearGradient(
                                     colors: [
-                                      colorScheme.primary.withOpacity(0.002), // Extremely faint
+                                      // Use original BRIGHTER green for gradient highlight
+                                      kPrimaryGreen.withOpacity(0.002), // Extremely faint
                                       colorScheme.surfaceVariant.withOpacity(0.3), // Card base color
                                     ],
                                     stops: [
@@ -686,253 +1168,235 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                             mainAxisSize: MainAxisSize.min,
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              // Restore simple Row for Date/Time
+                              // Main content row (Title, Locations | Time, OTP)
                               Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                crossAxisAlignment: CrossAxisAlignment.start, // Align top
+                                crossAxisAlignment: CrossAxisAlignment.start, // Align tops
                                 children: [
-                                  // Date
-                                  Text(
-                                    rideData['date'] as String,
-                                    style: textTheme.titleMedium?.copyWith(
-                                      fontWeight: FontWeight.bold,
-                                      color: colorScheme.primary,
+                                  // Left side: Title and Locations (Takes available space)
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          isToday ? 'Today' : rideData['date'] ?? 'Upcoming',
+                                          style: textTheme.titleLarge?.copyWith(
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 8.0), // CONST
+                                        // Location Column
+                                        Column(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            _buildLocationRow('Pickup', rideData['pickupLocation'] ?? 'Pickup: N/A'),
+                                            const SizedBox(height: 4.0), // CONST
+                                            _buildLocationRow('Drop', rideData['dropLocation'] ?? 'Drop: N/A'),
+                                          ],
+                                        ),
+                                      ],
                                     ),
                                   ),
-                                  // Time only
-                                  Text(
-                                    '${rideData['pickupTime']} - ${rideData['dropTime']}',
-                                    style: textTheme.bodyMedium,
+                                  // REDUCE spacing between left and right columns FURTHER
+                                  const SizedBox(width: 8.0), // CONST spacing between left and right
+                                  // Right side: Time ONLY now
+                                  // IntrinsicWidth might not be needed now, but keep for time alignment
+                                  IntrinsicWidth(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.end,
+                                      children: [
+                                        Text(
+                                          '${rideData['pickupTime'] ?? '--:--'} - ${rideData['dropTime'] ?? '--:--'}',
+                                          style: textTheme.bodyMedium?.copyWith(color: colorScheme.onSurfaceVariant),
+                                        ),
+                                        const SizedBox(height: 8.0), // Space between time and OTP
+                                        // --- RE-INSERTED OTP RichText (No Container/Chip) ---
+                                        RichText(
+                                          key: isToday ? _todayOtpKey : null, // Assign key only if Today
+                                          text: TextSpan(
+                                            // Smaller grey prefix
+                                            style: textTheme.bodyMedium?.copyWith(color: colorScheme.onSurfaceVariant),
+                                            children: [
+                                              const TextSpan(text: 'OTP '),
+                                              // Large green number
+                                              TextSpan(
+                                                text: rideData['otp']?.toString().replaceFirst("OTP ", "") ?? "????",
+                                                style: textTheme.headlineSmall?.copyWith( // Keep large size
+                                                  // Use HARDCODED muted green (0xFF66BB6A) for OTP number
+                                                  color: const Color(0xFF66BB6A), 
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                        // --- END OTP RichText ---
+                                      ],
+                                    ),
                                   ),
                                 ],
                               ),
-                              const SizedBox(height: 8),
-                              // Use RichText for Pickup line
-                              RichText(
-                                text: TextSpan(
-                                  style: textTheme.bodyMedium, // Default style for the line
-                                  children: [
-                                    const TextSpan(text: 'Pickup: '), // CONST
-                                    TextSpan(
-                                      text: rideData['pickupLocation']?.substring(7) ?? '', // Extract location part
-                                      style: TextStyle(color: colorScheme.onSurfaceVariant), // Greyish for location
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              const SizedBox(height: 4), // CONST
-                              // Use RichText for Drop line
-                              RichText(
-                                text: TextSpan(
-                                  style: textTheme.bodyMedium, // Default style for the line
-                                  children: [
-                                    const TextSpan(text: 'Drop: '), // CONST
-                                    TextSpan(
-                                      text: rideData['dropLocation']?.substring(6) ?? '', // Extract location part
-                                      style: TextStyle(color: colorScheme.onSurfaceVariant), // Greyish for location
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              const Divider(height: 24), // CONST
+                              
+                              const Divider(height: 16.0, thickness: 1, indent: 55, endIndent: 16), // Add subtle divider
+
+                              // --- Driver Details Row ---
                               Row(
                                 children: [
+                                  // Avatar
                                   CircleAvatar(
                                     radius: 20,
-                                    // Use pure black/white based on theme brightness
+                                    // Use pure black/white based on theme brightness as fallback background
                                     backgroundColor: Theme.of(context).brightness == Brightness.dark 
                                                        ? Colors.black 
                                                        : Colors.white,
-                                    child: Text(
-                                      rideData['driverName'].toString()[0],
-                                      style: textTheme.titleMedium?.copyWith(
-                                        // Keep contrast color (onSurface: white on black, black on white)
-                                        color: colorScheme.onSurface, 
-                                      ),
-                                    ),
+                                    // Conditionally set background image 
+                                    backgroundImage: rideData['driverName'] == 'Onkar Yaglewad' 
+                                        ? const AssetImage('assets/driver_profiles/onkar.jpg') 
+                                        : null, 
+                                    // Set child (initial) ONLY if backgroundImage is null
+                                    child: rideData['driverName'] != 'Onkar Yaglewad' 
+                                        ? Text(
+                                            rideData['driverName'].toString().isNotEmpty 
+                                                ? rideData['driverName'].toString()[0] 
+                                                : '?', // Fallback if name is empty
+                                            style: textTheme.titleMedium, 
+                                          )
+                                        : null, // No child if background image should be present
                                   ),
                                   const SizedBox(width: 12), // CONST
+                                  // Name and Vehicle details (takes remaining space before rating)
                                   Expanded(
                                     child: Column(
                                       mainAxisSize: MainAxisSize.min,
                                       crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
-                                        // Wrap potential long text with Flexible
-                                        Flexible(
-                                          child: Text(
-                                            rideData['driverName'] as String,
-                                            // Revert to default text color
-                                            style: textTheme.titleSmall,
-                                            overflow: TextOverflow.ellipsis, // Handle overflow
+                                        Text(
+                                          rideData['driverName'] as String,
+                                          style: textTheme.bodyLarge?.copyWith( // Use bodyLarge for name
+                                            fontWeight: FontWeight.w500, // Slightly bolder
                                           ),
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
                                         ),
-                                        // Wrap potential long text with Flexible
-                                        Flexible(
-                                          child: Text(
-                                            '${rideData['vehicleModel']} - ${rideData['vehicleNumber']}',
-                                            style: textTheme.bodySmall?.copyWith(
-                                              color: colorScheme.onSurfaceVariant,
+                                        const SizedBox(height: 2), // Minimal space
+                                        // Replace single Text with a Row for Model (grey) and Number (white)
+                                        Row(
+                                          children: [
+                                            // Vehicle Model (Grey)
+                                            Flexible( // Allow model to shrink if needed
+                                              child: Text(
+                                                '${rideData['vehicleModel']} - ', // Include the separator
+                                                style: textTheme.bodyMedium?.copyWith(
+                                                  color: colorScheme.onSurfaceVariant, // Keep grey
+                                                ),
+                                                maxLines: 1,
+                                                overflow: TextOverflow.ellipsis,
+                                              ),
                                             ),
-                                            overflow: TextOverflow.ellipsis, // Handle overflow
-                                          ),
+                                            // Vehicle Number (Default/White)
+                                            Flexible( // Allow number to shrink
+                                              child: Text(
+                                                rideData['vehicleNumber'] as String? ?? '', // Handle null
+                                                style: textTheme.bodyMedium?.copyWith( 
+                                                  // No color override = default white
+                                                ),
+                                                maxLines: 1,
+                                                overflow: TextOverflow.ellipsis, 
+                                              ),
+                                            ),
+                                          ],
                                         ),
                                       ],
                                     ),
                                   ),
-                                  Column(
-                                    mainAxisSize: MainAxisSize.min,
-                                    crossAxisAlignment: CrossAxisAlignment.end,
+                                  // Add Spacer before Rating
+                                  const SizedBox(width: 8), 
+                                  // --- Rating Row ---
+                                  Row(
+                                    mainAxisSize: MainAxisSize.min, // Don't take extra space
                                     children: [
-                                      Row(
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          const Icon(Icons.star, size: 16, color: Colors.amber), // CONST
-                                          const SizedBox(width: 4), // CONST
-                                          Text(
-                                            rideData['driverRating'].toString(),
-                                            style: textTheme.bodyMedium,
-                                          ),
-                                        ],
+                                      Icon(
+                                        Icons.star,
+                                        color: Colors.amber.shade600, // Star color
+                                        size: 16,
                                       ),
+                                      const SizedBox(width: 4),
                                       Text(
-                                        rideData['otp'] as String,
-                                        style: textTheme.bodySmall?.copyWith(
-                                          color: colorScheme.primary,
+                                        (rideData['driverRating'] as double?)?.toStringAsFixed(1) ?? '-', // Format rating
+                                        style: textTheme.bodyMedium?.copyWith(
                                           fontWeight: FontWeight.bold,
+                                          color: colorScheme.onSurface, // Use default text color for rating number
                                         ),
                                       ),
                                     ],
                                   ),
+                                  // --- End Rating Row ---
                                 ],
                               ),
-                              // Conditionally render buttons only for Today/Tomorrow
-                              if (rideData['date'] == 'Today' || rideData['date'] == 'Tomorrow') ...[
-                                const SizedBox(height: 16), // CONST
-                                Row(
-                                  // Restructure to push Info button to the right
-                                  children: [
-                                    // Group Message and Call together
-                                    Row(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        TextButton.icon(
-                                          style: TextButton.styleFrom(
-                                            foregroundColor: colorScheme.onSurfaceVariant,
-                                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4), // CONST
-                                            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                                          ),
-                                          icon: const Icon(Icons.message_outlined, size: 18), // CONST
-                                          label: const Text('Message'), // CONST
-                                          onPressed: () {
-                                            // Light haptic for message button
-                                            HapticFeedback.lightImpact();
-                                            // TODO: Implement message functionality
-                                            print('Message button pressed for ${rideData['driverName']}');
-                                          },
-                                        ),
-                                        const SizedBox(width: 16), // CONST
-                                        TextButton.icon(
-                                          style: TextButton.styleFrom(
-                                            foregroundColor: colorScheme.onSurfaceVariant,
-                                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4), // CONST
-                                            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                                          ),
-                                          icon: const Icon(Icons.call_outlined, size: 18), // CONST
-                                          label: const Text('Call'), // CONST
-                                          onPressed: () {
-                                            // Light haptic for call button
-                                            HapticFeedback.lightImpact();
-                                            // TODO: Implement call functionality
-                                            print('Call button pressed for ${rideData['driverName']}');
-                                          },
-                                        ),
-                                      ],
-                                    ),
-                                    const Spacer(), // CONST
-                                    // Info Button
-                                    TextButton.icon(
-                                      style: TextButton.styleFrom(
-                                        foregroundColor: colorScheme.onSurfaceVariant,
-                                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4), // CONST
-                                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                                      ),
-                                      icon: const Icon(Icons.info_outline, size: 18), // CONST
-                                      label: const Text('Info'), // CONST
-                                      onPressed: () {
-                                        // Light haptic for info button
-                                        HapticFeedback.lightImpact();
-                                        // TODO: Implement driver info/reviews navigation
-                                        print('Info button pressed for ${rideData['driverName']}');
-                                      },
-                                    ),
-                                  ],
-                                ),
-                              ]
                             ],
                           ),
                         ),
                       ],
                     ),
-                    // Layer 3: Positioned Edit Button (On top of content & gradient)
-                    Positioned(
-                      top: 32.0, // Increased top padding slightly
-                      right: 8.0,
-                      child: IconButton(
-                        icon: const Icon(Icons.edit_outlined, size: 18),
-                        color: colorScheme.onSurfaceVariant, // Subtle color
-                        padding: EdgeInsets.zero,
-                        constraints: const BoxConstraints(), // CONST
-                        tooltip: 'Edit Ride',
-                        onPressed: () {
-                          // Light haptic for edit button
-                          HapticFeedback.lightImpact();
-                          // TODO: Implement edit ride functionality
-                          print('Edit button pressed for ${rideData['date']}');
-                        },
-                      ),
-                    ),
                   ],
                 ),
               ),
-              // Conditionally add Action Bar Container BELOW the Card
+              // Re-add conditional Action Bar Container BELOW the Card
               if (isToday)
-                Container(
-                  width: double.infinity, // Takes width from parent Column padding
-                  // Increase horizontal margin to make it narrower
-                  margin: const EdgeInsets.symmetric(horizontal: 16.0),
-                  padding: const EdgeInsets.symmetric(vertical: 3.0), // Further reduced padding
-                  decoration: BoxDecoration(
-                    // Use solid, darker primary color
-                    color: Color.alphaBlend(Colors.black.withOpacity(0.25), colorScheme.primary),
-                    // Round only bottom corners
-                    borderRadius: const BorderRadius.vertical(
-                      bottom: Radius.circular(12.0),
-                    ),
-                  ),
-                  // Use a Row for text and arrow
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center, // Center content
-                    mainAxisSize: MainAxisSize.min, // Don't stretch row
-                    children: [
-                      Text(
-                        'View More Ride Details', // Updated text
-                        style: textTheme.labelSmall?.copyWith( // Reduced text size
-                          color: colorScheme.onPrimary, // Use onPrimary for contrast with darker green
-                          fontWeight: FontWeight.bold,
-                        ),
+                // Wrap the 'View More' action bar with GestureDetector and assign key
+                GestureDetector(
+                   key: _todayViewMoreKey, // Assign key only if Today
+                   onTap: () {
+                        // Allow tutorial overlay/target tap to handle navigation
+                        // Or duplicate navigation logic here if direct tap needed outside tutorial
+                        print("View More Tapped Directly");
+                        _triggerViewMoreNavigation(null); // Pass null or the key if needed
+                   },
+                   // The actual visible container
+                   child: Container(
+                      width: double.infinity, // Takes width from parent Column padding
+                      margin: const EdgeInsets.symmetric(horizontal: 16.0), 
+                      padding: const EdgeInsets.symmetric(vertical: 3.0), // Further reduced padding
+                      decoration: BoxDecoration(
+                        color: Color.alphaBlend(Colors.black.withOpacity(0.25), colorScheme.primary),
+                        borderRadius: const BorderRadius.vertical(bottom: Radius.circular(12.0)), 
                       ),
-                      const SizedBox(width: 4), // Space before arrow
-                      Icon(
-                        Icons.arrow_forward_ios, // Simple arrow icon
-                        size: 12, // Small icon size
-                        color: colorScheme.onPrimary, // Use onPrimary for contrast
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text('View More Ride Details', style: textTheme.labelSmall?.copyWith(color: colorScheme.onPrimary, fontWeight: FontWeight.bold)),
+                          const SizedBox(width: 4),
+                          Icon(Icons.arrow_forward_ios, size: 12, color: colorScheme.onPrimary),
+                        ],
                       ),
-                    ],
-                  ),
-                ),
+                   ),
+                )
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildLocationRow(String label, String location) {
+    // Remove the prefix like 'Pickup: ' or 'Drop: '
+    final locationText = location.replaceFirst(RegExp(r'^\w+: '), '');
+    return RichText(
+      text: TextSpan(
+        // Default style from theme
+        style: Theme.of(context).textTheme.bodyMedium, 
+        children: [
+          TextSpan(
+            text: '$label: ', // Label with space
+            // Make label bold
+            style: const TextStyle(fontWeight: FontWeight.bold), 
+          ),
+          TextSpan(
+            text: locationText, // Location text without prefix
+            // Greyish color for location
+            style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant), 
+          ),
+        ],
       ),
     );
   }

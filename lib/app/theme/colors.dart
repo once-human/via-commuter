@@ -6,7 +6,7 @@ const Color kCharcoal = Color(0xFF364156);
 
 // Define new green primary colors
 const Color kPrimaryGreen = Color(0xFF24EB68);
-const Color kPrimaryGreenDarker = Color(0xFF1CD25C); 
+const Color kPrimaryGreenDarker = Color(0xFF41C763);
 
 const Color kIndianRed = Color(0xFFDB5461); // Maybe Error or Warning
 const Color kWhite = Colors.white;
