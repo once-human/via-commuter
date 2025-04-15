@@ -3,7 +3,11 @@ import 'package:flutter/material.dart';
 // Define your core colors based on the palette
 const Color kOxfordBlue = Color(0xFF011638);
 const Color kCharcoal = Color(0xFF364156);
-const Color kIndigoAccent = Color(0xFF3949AB); // New darker, cooler primary accent
+
+// Define new green primary colors
+const Color kPrimaryGreen = Color(0xFF24EB68);
+const Color kPrimaryGreenDarker = Color(0xFF1CD25C); 
+
 const Color kIndianRed = Color(0xFFDB5461); // Maybe Error or Warning
 const Color kWhite = Colors.white;
 const Color kBlack = Colors.black;
@@ -19,9 +23,9 @@ const Color kGreyTransparent = Color(0x339E9E9E); // ~20% opacity Grey for outli
 const ColorScheme kDarkColorScheme = ColorScheme(
   brightness: Brightness.dark,
 
-  // Core Colors (Updated Primary)
-  primary: kIndigoAccent,       // Main action button (Continue) - Now darker blue
-  onPrimary: kWhite,          // Text on Primary button (White provides good contrast)
+  // Core Colors (Updated Primary to Green)
+  primary: kPrimaryGreenDarker, // Use darker green for dark theme primary
+  onPrimary: kBlack,          // Use black text on the green primary for contrast
   secondary: kCharcoal,       // Maybe for secondary actions or borders
   onSecondary: kWhite,        // Text on Secondary
   tertiary: kIndianRed,       // Optional accent
@@ -52,8 +56,8 @@ const ColorScheme kDarkColorScheme = ColorScheme(
 // to the roles (primary, background, surface, etc.)
 const ColorScheme kLightColorScheme = ColorScheme(
   brightness: Brightness.light,
-  primary: kIndigoAccent, // Example mapping
-  onPrimary: kOxfordBlue,
+  primary: kPrimaryGreen, // Use lighter green for light theme primary
+  onPrimary: kBlack, // Use black text on the green primary for contrast
   secondary: kCharcoal,
   onSecondary: kWhite,
   error: kIndianRed,

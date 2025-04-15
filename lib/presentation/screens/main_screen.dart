@@ -46,6 +46,8 @@ class _MainScreenState extends State<MainScreen> {
         }
       },
       child: Scaffold(
+        // Allow body to extend behind the bottom navigation bar
+        extendBody: true, 
         // Use IndexedStack to keep the state of each screen when switching tabs
         body: IndexedStack(
           index: _currentIndex,

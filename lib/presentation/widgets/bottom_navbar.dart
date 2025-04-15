@@ -1,6 +1,7 @@
 // lib/presentation/widgets/bottom_navbar.dart
 import 'dart:ui'; // Import for ImageFilter
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart'; // Correct import for HapticFeedback
 // Remove go_router import if no longer needed here
 // import 'package:go_router/go_router.dart';
 
@@ -42,94 +43,114 @@ class BottomNavBar extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    // Use MediaQuery to respect bottom safe area padding
+    final textTheme = theme.textTheme;
     final safePadding = MediaQuery.of(context).padding.bottom;
 
     // Define the navigation items data
     final items = [
       _NavBarItemData(icon: Icons.home_outlined, activeIcon: Icons.home, label: 'Home'),
       _NavBarItemData(icon: Icons.timeline_outlined, activeIcon: Icons.timeline, label: 'Activity'),
-      _NavBarItemData(icon: Icons.badge_outlined, activeIcon: Icons.badge, label: 'Driver Profiles'),
+      _NavBarItemData(icon: Icons.badge_outlined, activeIcon: Icons.badge, label: 'Drivers'),
       _NavBarItemData(icon: Icons.person_outline, activeIcon: Icons.person, label: 'Profile'),
     ];
 
-    // Height of the visual bar content
-    const double barHeight = 65.0;
+    const double itemHeight = 56.0; // Height for each item tap area
+    const double verticalPadding = 8.0; // Padding inside the floating bar
+    final BorderRadius borderRadius = BorderRadius.circular(28);
+    final double containerHeight = itemHeight + (verticalPadding * 2);
 
-    // Remove ClipRect and BackdropFilter, apply styling directly to Container
-    // return ClipRect( 
-    //   child: BackdropFilter(
-    //     filter: ImageFilter.blur(sigmaX: 15.0, sigmaY: 15.0), 
-    //     child: Container(
-    return Container(
-      // Total height includes bar height and safe area padding
-      height: barHeight + safePadding,
-      padding: EdgeInsets.only(bottom: safePadding), // Apply safe area padding only at the bottom
-      // Use a semi-transparent background based on the theme background
-      decoration: BoxDecoration(
-        color: colorScheme.background.withOpacity(0.85), // Theme background, semi-transparent
-        // Remove solid color from previous step
-        // color: colorScheme.surface.withOpacity(0.90), 
-        // Optional Gradient:
-        // gradient: LinearGradient(
-        //   begin: Alignment.topCenter,
-        //   end: Alignment.bottomCenter,
-        //   colors: [
-        //     colorScheme.surface.withOpacity(0.80), // More transparent at top
-        //     colorScheme.surface.withOpacity(0.95), // More opaque at bottom
-        //   ],
-        // ),
-        // Optional subtle top border if needed
-        // border: Border(
-        //   top: BorderSide(color: colorScheme.outline.withOpacity(0.1), width: 0.5),
-        // ),
-      ),
-      // Remove the inner color property, handled by decoration now
-      // color: Colors.black.withOpacity(0.15), 
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        crossAxisAlignment: CrossAxisAlignment.center, // Center items vertically within barHeight
-        children: List.generate(items.length, (index) {
-          final item = items[index];
-          final bool isActive = index == currentIndex;
-          // Determine colors based on active state and theme
-          final Color itemColor = isActive ? colorScheme.primary : (Colors.grey[600] ?? Colors.grey);
+    // Wrap the entire widget in a RepaintBoundary for optimization
+    return RepaintBoundary(
+      child: Padding(
+        padding: EdgeInsets.fromLTRB(8, 0, 8, 6 + safePadding), // Keep reduced padding
+        child: ClipRRect(
+          borderRadius: borderRadius,
+          child: BackdropFilter(
+            // Reduce blur slightly for performance optimization
+            filter: ImageFilter.blur(sigmaX: 8.0, sigmaY: 8.0), // Reduced blur
+            child: Container(
+              height: containerHeight, 
+              decoration: BoxDecoration(
+                // Use a lighter surface color with high opacity
+                // Try surfaceContainerHigh first, fallback to surfaceContainer if needed
+                color: colorScheme.surfaceContainerHigh.withOpacity(0.90), 
+                borderRadius: borderRadius, 
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.15), 
+                    blurRadius: 10, 
+                    spreadRadius: 0, 
+                    offset: const Offset(0, 1), 
+                  ),
+                ],
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                crossAxisAlignment: CrossAxisAlignment.stretch, // Items fill height
+                children: List.generate(items.length, (index) {
+                  final item = items[index];
+                  final bool isActive = index == currentIndex;
+                  final Color activeColor = colorScheme.primary;
+                  final Color inactiveColor = colorScheme.onSurfaceVariant;
+                  final Color indicatorColor = colorScheme.secondaryContainer;
 
-          return Expanded(
-            child: InkWell( // Use InkWell for tap feedback
-              // Call the provided onTap callback
-              onTap: () => onTap(index),
-              // Make splash/highlight transparent for a cleaner look
-              splashColor: Colors.transparent,
-              highlightColor: Colors.transparent,
-              child: Container( // Ensure InkWell covers the full height for tap area
-                 height: barHeight, // Fill the visual height
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center, // Center content vertically
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(
-                      isActive ? item.activeIcon : item.icon,
-                      color: itemColor,
-                      size: 26, // Icon size
-                    ),
-                    const SizedBox(height: 4), // Space between icon and label
-                    Text(
-                      item.label,
-                      style: TextStyle(
-                        color: itemColor,
-                        fontSize: 10, // Small font size for label
-                        fontWeight: isActive ? FontWeight.w600 : FontWeight.normal,
+                  return Expanded(
+                    child: InkWell(
+                      onTap: () {
+                        HapticFeedback.lightImpact(); 
+                        onTap(index);
+                      },
+                      splashColor: Colors.transparent,
+                      highlightColor: Colors.transparent,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          // AnimatedSwitcher for smooth indicator transition (optional but nice)
+                          AnimatedContainer(
+                            duration: const Duration(milliseconds: 200),
+                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6), // Padding inside indicator
+                            decoration: BoxDecoration(
+                              // Apply gradient only if active
+                              gradient: isActive 
+                                ? LinearGradient(
+                                    colors: [
+                                      colorScheme.primary.withOpacity(0.2),
+                                      colorScheme.primary.withOpacity(0.1),
+                                    ],
+                                    begin: Alignment.topLeft,
+                                    end: Alignment.bottomRight,
+                                  )
+                                : null,
+                              // Use StadiumBorder for pill shape
+                              // Use transparent color if not active
+                              color: !isActive ? Colors.transparent : null, 
+                              borderRadius: BorderRadius.circular(20), // Equivalent to StadiumBorder
+                            ),
+                            child: Icon(
+                              isActive ? item.activeIcon : item.icon, // Show active/inactive icon
+                              color: isActive ? activeColor : inactiveColor,
+                              size: 24, 
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            item.label,
+                            style: textTheme.labelSmall?.copyWith(
+                              color: isActive ? activeColor : inactiveColor,
+                              fontWeight: isActive ? FontWeight.bold : FontWeight.normal,
+                            ),
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 1,
+                          ),
+                        ],
                       ),
-                      overflow: TextOverflow.ellipsis,
-                      maxLines: 1,
                     ),
-                  ],
-                ),
+                  );
+                }),
               ),
             ),
-          );
-        }),
+          ),
+        ),
       ),
     );
   }
