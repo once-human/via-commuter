@@ -51,8 +51,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       'driverImageUrl': "",
       'driverRating': 5.0,
       'otp': "OTP 8888",
-      'vehicleModel': "Flux Capacitor Express",
-      'vehicleNumber': "OUTATIME",
+      'vehicleModel': "BMW X1",
+      'vehicleNumber': "MH 14 JD 2345",
     },
     {
       'userName': "Khushi",
@@ -177,12 +177,13 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   }
 
   void _handlePointsTapUp(TapUpDetails details) {
+    // Trigger haptic immediately on tap up
+    HapticFeedback.mediumImpact(); 
+    // Still reverse the animation
     Future.delayed(const Duration(milliseconds: 100), () {
         if (mounted) _pointsTapController.reverse();
     });
-     // Original tap logic
-     // Use medium impact for header buttons
-     HapticFeedback.mediumImpact();
+     // Original tap logic (excluding haptic)
      print('Points chip pressed');
      // TODO: Implement navigation
   }
@@ -196,12 +197,13 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   }
 
   void _handleBookRideTapUp(TapUpDetails details) {
+    // Trigger haptic immediately on tap up
+    HapticFeedback.mediumImpact();
+    // Still reverse the animation
     Future.delayed(const Duration(milliseconds: 100), () {
       if (mounted) _bookRideTapController.reverse();
     });
-    // Original tap logic
-    // Use medium impact for header buttons
-    HapticFeedback.mediumImpact();
+    // Original tap logic (excluding haptic)
     print('Book ride from header pressed');
     // TODO: Implement navigation
   }
@@ -741,17 +743,25 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                                 children: [
                                   CircleAvatar(
                                     radius: 20,
-                                    // Use pure black/white based on theme brightness
+                                    // Use pure black/white based on theme brightness as fallback background
                                     backgroundColor: Theme.of(context).brightness == Brightness.dark 
                                                        ? Colors.black 
                                                        : Colors.white,
-                                    child: Text(
-                                      rideData['driverName'].toString()[0],
-                                      style: textTheme.titleMedium?.copyWith(
-                                        // Keep contrast color (onSurface: white on black, black on white)
-                                        color: colorScheme.onSurface, 
-                                      ),
-                                    ),
+                                    // Conditionally set background image 
+                                    backgroundImage: rideData['driverName'] == 'Onkar Yaglewad' 
+                                        ? const AssetImage('assets/driver_profiles/onkar.jpg') 
+                                        : null, 
+                                    // Set child (initial) ONLY if backgroundImage is null
+                                    child: rideData['driverName'] != 'Onkar Yaglewad' 
+                                        ? Text(
+                                            rideData['driverName'].toString().isNotEmpty 
+                                                ? rideData['driverName'].toString()[0] 
+                                                : '?', // Fallback if name is empty
+                                            style: textTheme.titleMedium?.copyWith(
+                                              color: colorScheme.onSurface, 
+                                            ),
+                                          )
+                                        : null, // No child if background image should be present
                                   ),
                                   const SizedBox(width: 12), // CONST
                                   Expanded(
