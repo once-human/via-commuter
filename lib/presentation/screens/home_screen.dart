@@ -6,6 +6,7 @@ import 'package:via_commuter/presentation/screens/ride_detail_screen.dart'; // I
 // Add animation imports
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
+import 'package:via_commuter/app/theme/colors.dart'; // <-- ADD IMPORT for kPrimaryGreen
 
 // Convert to StatefulWidget
 class HomeScreen extends StatefulWidget {
@@ -648,7 +649,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                                 decoration: BoxDecoration(
                                   gradient: LinearGradient(
                                     colors: [
-                                      colorScheme.primary.withOpacity(0.004), // Extremely faint
+                                      // Use original BRIGHTER green for gradient highlight
+                                      kPrimaryGreen.withOpacity(0.004), // Extremely faint
                                       colorScheme.surfaceVariant.withOpacity(0.3), // Card base color
                                     ],
                                     stops: [
@@ -665,7 +667,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                                 decoration: BoxDecoration(
                                   gradient: LinearGradient(
                                     colors: [
-                                      colorScheme.primary.withOpacity(0.002), // Extremely faint
+                                      // Use original BRIGHTER green for gradient highlight
+                                      kPrimaryGreen.withOpacity(0.002), // Extremely faint
                                       colorScheme.surfaceVariant.withOpacity(0.3), // Card base color
                                     ],
                                     stops: [
@@ -744,7 +747,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                                               TextSpan(
                                                 text: rideData['otp']?.toString().replaceFirst("OTP ", "") ?? "????",
                                                 style: textTheme.headlineSmall?.copyWith( // Keep large size
-                                                  color: Colors.green.shade400, // Keep green color
+                                                  // Use HARDCODED muted green (0xFF66BB6A) for OTP number
+                                                  color: const Color(0xFF66BB6A), 
                                                   fontWeight: FontWeight.bold,
                                                 ),
                                               ),
