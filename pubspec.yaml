@@ -34,6 +34,7 @@ dependencies:
   dynamic_color: ^1.7.0
   country_picker: ^2.0.27
   flutter_svg: ^2.0.17
+  intl: ^0.19.0
 
   # Add animation packages
   flutter_staggered_animations: ^1.1.1 # Use appropriate latest version
