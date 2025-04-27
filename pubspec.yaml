@@ -34,6 +34,7 @@ dependencies:
   dynamic_color: ^1.7.0
   country_picker: ^2.0.27
   flutter_svg: ^2.0.17
+  intl: ^0.19.0
 
   # Add animation packages
   flutter_staggered_animations: ^1.1.1 # Use appropriate latest version
@@ -44,6 +45,7 @@ dependencies:
   cupertino_icons: ^1.0.6
   provider: ^6.1.4
   shared_preferences: ^2.5.3
+  tutorial_coach_mark: ^1.2.11
 
 dev_dependencies:
   flutter_test:
